@@ -1,0 +1,17 @@
+{
+  "regions": {
+    "Southeast Asia": [
+      {"brand": "OLENS", "handles": {"instagram": "olens_official", "tiktok": "olens_official", "pinterest": ""}},
+      {"brand": "Hapa Kristin", "handles": {"instagram": "hapakristin", "tiktok": "hapakristin", "pinterest": ""}},
+      {"brand": "moody", "handles": {"instagram": "moodylenses", "tiktok": "moodylenses", "pinterest": ""}}
+    ],
+    "Europe & North America": [
+      {"brand": "ColorCL", "handles": {"instagram": "colorcl", "tiktok": "colorcl", "pinterest": ""}},
+      {"brand": "Solotica", "handles": {"instagram": "solotica_official", "tiktok": "solotica", "pinterest": ""}}
+    ],
+    "Middle East": [
+      {"brand": "LensMe", "handles": {"instagram": "lensme", "tiktok": "lensme", "pinterest": ""}}
+    ]
+  },
+  "note": "Starter watchlist only. Verify and edit handles before live collection. Add any competitors, creators, retailers, or owned brands you want to monitor."
+}

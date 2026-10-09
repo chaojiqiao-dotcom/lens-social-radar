@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="Weekly colored contact lens social trend radar across Instagram, TikTok and Pinterest." />
+  <title>Lens Social Radar</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="page-shell">
+    <header class="hero">
+      <div class="hero-top">
+        <div>
+          <div class="eyebrow">SOCIAL INTELLIGENCE / WEEKLY</div>
+          <h1>Lens Social Radar</h1>
+          <p class="hero-sub">美瞳 · 眼睛内容 · 东南亚 / 欧美 / 中东</p>
+        </div>
+        <div class="hero-actions">
+          <span id="demoBadge" class="badge demo hidden">DEMO DATA</span>
+          <span class="badge live-dot"><i></i> Weekly refresh</span>
+        </div>
+      </div>
+      <div class="date-row">
+        <span id="dateRange">Loading…</span>
+        <span class="sep">•</span>
+        <span>每周一更新上一周周二—周日</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="search-hub">
+        <div class="search-hub-head">
+          <div>
+            <div class="eyebrow">CASE LIBRARY / GLOBAL SEARCH</div>
+            <h2>搜索社媒案例库</h2>
+            <p>输入任意关键词，搜索品牌、账号、地区、美瞳颜色、画面元素、拍摄方式、剪辑手法、Hook 与内容形式。</p>
+          </div>
+          <div class="search-index-badge">历史内容持续累积</div>
+        </div>
+        <div class="search-control-row">
+          <div class="global-search-box">
+            <span class="search-icon">⌕</span>
+            <input id="globalSearch" type="search" autocomplete="off" placeholder="例如：眼部特写 / 自然光 / Jump Cut / OLENS / 中东 / GRWM" />
+            <button id="searchClear" type="button" aria-label="清空搜索">清空</button>
+          </div>
+          <div class="platform-filter" aria-label="平台筛选">
+            <button class="active" type="button" data-search-platform="all">全部</button>
+            <button type="button" data-search-platform="instagram">Instagram</button>
+            <button type="button" data-search-platform="tiktok">TikTok</button>
+            <button type="button" data-search-platform="pinterest">Pinterest</button>
+          </div>
+        </div>
+        <div class="quick-searches" aria-label="快捷搜索">
+          <span>快捷：</span>
+          <button type="button" data-search-query="眼部特写">眼部特写</button>
+          <button type="button" data-search-query="大脸近景">大脸近景</button>
+          <button type="button" data-search-query="单眼对比">单眼对比</button>
+          <button type="button" data-search-query="自然光">自然光</button>
+          <button type="button" data-search-query="Jump Cut">Jump Cut</button>
+          <button type="button" data-search-query="卡点">卡点</button>
+          <button type="button" data-search-query="GRWM">GRWM</button>
+          <button type="button" data-search-query="产品平铺">产品平铺</button>
+        </div>
+        <div id="searchMeta" class="search-meta"></div>
+        <div id="searchResults" class="search-results"></div>
+      </section>
+
+      <section class="kpi-grid" id="kpis"></section>
+
+      <section class="panel summary-panel">
+        <div class="section-title-row">
+          <div>
+            <div class="eyebrow">WEEKLY READOUT</div>
+            <h2>本周一句话结论</h2>
+          </div>
+          <div class="method-pill" title="先在平台内部做百分位，再跨平台合并">跨平台归一化评分</div>
+        </div>
+        <p id="weeklySummary" class="summary-copy"></p>
+        <div id="signals" class="signal-grid"></div>
+      </section>
+
+      <section class="platform-leaderboards">
+        <div class="section-title-row standalone">
+          <div>
+            <div class="eyebrow">PLATFORM TOP 10</div>
+            <h2>三大平台周榜</h2>
+          </div>
+          <p>每个平台独立评出 TOP 10。封面优先使用视频首帧/帖子封面，点击即可打开原帖。</p>
+        </div>
+        <div id="platformBoards" class="platform-boards"></div>
+      </section>
+
+      <section class="overall-section">
+        <div class="section-title-row standalone">
+          <div>
+            <div class="eyebrow">OVERALL TOP 3 / DEEP DIVE</div>
+            <h2>综合总榜前三</h2>
+          </div>
+          <p>在各平台内部归一化后再跨平台比较，综合触达、互动、分享/收藏、增长速度与内容相关性。</p>
+        </div>
+        <div id="podium" class="podium-grid"></div>
+      </section>
+
+      <section class="split-grid">
+        <div class="panel">
+          <div class="eyebrow">REGIONAL SIGNALS</div>
+          <h2>地区观察</h2>
+          <p id="regionalNote" class="regional-note"></p>
+          <div id="regionBars" class="bars"></div>
+        </div>
+        <div class="panel">
+          <div class="eyebrow">FORMAT MIX</div>
+          <h2>内容类型分布</h2>
+          <div id="typeBars" class="bars"></div>
+          <div class="legend-note">用来判断本周“什么格式正在占据注意力”，而不是绝对市场份额。</div>
+        </div>
+      </section>
+
+      <footer>
+        <span>Lens Social Radar</span>
+        <span id="generatedAt"></span>
+      </footer>
+    </main>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="960" viewBox="0 0 720 960">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f6dce5"/><stop offset="1" stop-color="#c98aa0"/></linearGradient><radialGradient id="iris"><stop offset="0" stop-color="#111"/><stop offset=".17" stop-color="#3f3840"/><stop offset=".48" stop-color="#4b3941"/><stop offset=".75" stop-color="#c7b5bd"/><stop offset="1" stop-color="#f8f4f5"/></radialGradient></defs>
+<rect width="720" height="960" fill="url(#g)"/>
+<ellipse cx="360" cy="410" rx="245" ry="132" fill="#fff" opacity=".93"/>
+<circle cx="360" cy="410" r="118" fill="url(#iris)"/>
+<circle cx="360" cy="410" r="32" fill="#111"/>
+<circle cx="323" cy="370" r="19" fill="#fff" opacity=".7"/>
+<text x="54" y="92" font-family="Arial,sans-serif" font-size="22" font-weight="700" fill="#222" opacity=".75">DEMO COVER · INSTAGRAM</text>
+<text x="54" y="810" font-family="Arial,sans-serif" font-size="42" font-weight="800" fill="#151515">#01</text>
+<text x="54" y="858" font-family="Arial,sans-serif" font-size="28" font-weight="700" fill="#151515">Hapa Kristin</text>
+<text x="54" y="900" font-family="Arial,sans-serif" font-size="18" fill="#2f2b2d" opacity=".68">真实数据会显示视频首帧 / 帖子封面</text>
+</svg>

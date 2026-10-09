@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="Weekly colored contact lens social trend radar across Instagram, TikTok and Pinterest." />
+  <title>Lens Social Radar v1.2 Preview</title>
+  <style>
+:root{
+  --bg:#f5f4f1;
+  --panel:#fff;
+  --ink:#151515;
+  --muted:#73716d;
+  --line:#e6e3dd;
+  --soft:#efede8;
+  --accent:#ff5c8a;
+  --accent-soft:#ffe5ed;
+  --green:#1f8a64;
+  --shadow:0 16px 50px rgba(26,22,18,.06);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit}.page-shell{max-width:1540px;margin:0 auto;padding:28px 28px 40px}
+.hero{background:#121212;color:white;border-radius:28px;padding:38px 42px 30px;overflow:hidden;position:relative;box-shadow:var(--shadow)}
+.hero:after{content:"";position:absolute;width:420px;height:420px;border-radius:50%;right:-120px;top:-210px;background:radial-gradient(circle at 40% 40%,rgba(255,92,138,.7),rgba(255,92,138,0));filter:blur(2px)}
+.hero-top{display:flex;justify-content:space-between;gap:30px;align-items:flex-start;position:relative;z-index:1}.eyebrow{font-size:11px;letter-spacing:.17em;font-weight:800;color:#9a9690;text-transform:uppercase}.hero .eyebrow{color:#aaa}
+h1{font-size:48px;line-height:1;margin:13px 0 10px;letter-spacing:-.045em}.hero-sub{margin:0;color:#c7c4bf;font-size:16px}.hero-actions{display:flex;gap:8px;align-items:center;position:relative;z-index:2}
+.badge{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.15);border-radius:999px;padding:9px 12px;font-size:11px;font-weight:750;color:#ddd;background:rgba(255,255,255,.06);backdrop-filter:blur(8px)}.badge.demo{border-color:rgba(255,92,138,.45);color:#ffd8e4;background:rgba(255,92,138,.13)}.badge i{width:7px;height:7px;border-radius:50%;background:#48d89b;box-shadow:0 0 0 4px rgba(72,216,155,.11)}.hidden{display:none}
+.date-row{display:flex;gap:10px;align-items:center;margin-top:38px;padding-top:20px;border-top:1px solid rgba(255,255,255,.09);font-size:13px;color:#aaa;position:relative;z-index:1}.date-row #dateRange{color:#fff;font-weight:750}.sep{color:#555}
+main{display:flex;flex-direction:column;gap:28px;margin-top:24px}.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.kpi{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:22px 22px 20px;box-shadow:0 9px 34px rgba(22,20,18,.03)}.kpi-label{color:var(--muted);font-size:12px;margin-bottom:13px}.kpi-value{font-size:32px;letter-spacing:-.04em;font-weight:800}.kpi-sub{font-size:11px;color:#9a9690;margin-top:7px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:24px;padding:28px;box-shadow:0 10px 36px rgba(22,20,18,.03)}.section-title-row{display:flex;justify-content:space-between;gap:24px;align-items:flex-start}.section-title-row.standalone{padding:10px 4px 0}.section-title-row h2,.panel h2{font-size:25px;margin:7px 0 0;letter-spacing:-.035em}.section-title-row>p{margin:26px 0 0;color:var(--muted);font-size:12px;max-width:660px;text-align:right;line-height:1.6}.method-pill{font-size:11px;border-radius:999px;background:var(--soft);padding:8px 11px;color:#666}.summary-copy{font-size:20px;line-height:1.7;letter-spacing:-.015em;margin:24px 0 20px;max-width:1100px}.signal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.signal{background:#faf9f7;border:1px solid #eeeae4;border-radius:15px;padding:15px;font-size:12.5px;line-height:1.6;color:#555}.signal b{display:block;color:#111;font-size:11px;margin-bottom:5px}
+
+.platform-boards{display:flex;flex-direction:column;gap:18px;margin-top:14px}.platform-board{background:var(--panel);border:1px solid var(--line);border-radius:26px;padding:24px;box-shadow:0 10px 36px rgba(22,20,18,.03)}.platform-board-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:18px}.platform-board-head h3{font-size:27px;margin:6px 0 0;letter-spacing:-.04em}.board-count{font-size:12px;color:var(--muted);background:var(--soft);border-radius:999px;padding:8px 11px;font-weight:750}.rank-gallery{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}.rank-card{border:1px solid var(--line);border-radius:19px;overflow:hidden;background:#fbfaf8;min-width:0;transition:transform .18s ease,box-shadow .18s ease}.rank-card:hover{transform:translateY(-2px);box-shadow:0 13px 32px rgba(22,20,18,.08)}
+.post-cover{position:relative;display:block;aspect-ratio:9/12;overflow:hidden;background:#e9e6e1;text-decoration:none}.post-cover.compact-cover{aspect-ratio:9/12;border-radius:18px;min-height:220px}.post-cover img{width:100%;height:100%;object-fit:cover;display:block;position:relative;z-index:2}.post-cover.clickable{cursor:pointer}.post-cover:after{content:"";position:absolute;inset:0;z-index:3;background:linear-gradient(180deg,rgba(0,0,0,.02) 44%,rgba(0,0,0,.57) 100%);pointer-events:none}.poster-fallback{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:radial-gradient(circle at 50% 38%,#fff 0 4%,#f7c7d5 5% 10%,#ae8391 11% 15%,#463e43 16% 17%,transparent 18%),linear-gradient(135deg,#f6dde4,#c9c3ca);color:rgba(20,20,20,.55);font-size:11px;font-weight:850;letter-spacing:.13em;text-transform:uppercase}.platform-tiktok .poster-fallback{background:radial-gradient(circle at 50% 38%,#fff 0 4%,#d8d7e8 5% 10%,#827e9b 11% 15%,#373640 16% 17%,transparent 18%),linear-gradient(135deg,#e9e8ef,#c7c3d3)}.platform-pinterest .poster-fallback{background:radial-gradient(circle at 50% 38%,#fff 0 4%,#e0d8ca 5% 10%,#998971 11% 15%,#4f463b 16% 17%,transparent 18%),linear-gradient(135deg,#efeae1,#d7cbbb)}.iris-mark{width:64px;height:64px;border-radius:50%;border:1px solid rgba(0,0,0,.08);display:none}.iris-mark i{display:block;width:16px;height:16px;margin:23px;border-radius:50%;background:#222}.cover-rank,.access-badge,.cover-action{position:absolute;z-index:4}.cover-rank{left:10px;top:10px;background:#fff;color:#111;border-radius:999px;padding:7px 9px;font-size:11px;font-weight:900;box-shadow:0 4px 18px rgba(0,0,0,.12)}.access-badge{right:10px;top:10px;background:rgba(18,18,18,.76);color:#fff;border-radius:999px;padding:7px 9px;font-size:9px;font-weight:800;backdrop-filter:blur(8px)}.cover-action{left:11px;right:11px;bottom:10px;color:#fff;font-size:11px;font-weight:800;opacity:0;transform:translateY(4px);transition:.18s}.post-cover.clickable:hover .cover-action{opacity:1;transform:translateY(0)}.post-cover.no-link .cover-action{opacity:.78;transform:none}.rank-card-body{padding:14px 14px 16px}.rank-card-top{display:flex;justify-content:space-between;align-items:center;gap:8px}.platform-pill{font-size:9px;text-transform:uppercase;letter-spacing:.08em;background:#efede8;border-radius:999px;padding:6px 8px;font-weight:850;color:#5e5b56}.score-number{font-size:11px;font-weight:850;color:#333}.rank-card h3{margin:11px 0 6px;font-size:17px;letter-spacing:-.03em}.card-caption{margin:0;color:#57534e;font-size:12px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:35px}.card-author{font-size:10px;color:#9b9790;margin-top:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.card-metrics{display:grid;grid-template-columns:1fr;gap:5px;margin-top:12px;padding-top:11px;border-top:1px solid #e8e4de;font-size:10px;color:#87837d}.card-metrics span{display:flex;justify-content:space-between;gap:8px}.card-metrics b{color:#242321;font-size:11px}.empty-state{grid-column:1/-1;padding:30px;color:var(--muted);text-align:center;background:#faf9f7;border-radius:16px}
+
+.podium-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:14px}.winner{background:var(--panel);border:1px solid var(--line);border-radius:24px;padding:18px;display:grid;grid-template-columns:230px 1fr;gap:22px;position:relative;overflow:hidden;box-shadow:0 10px 36px rgba(22,20,18,.03)}.winner:after{content:attr(data-rank);position:absolute;right:18px;top:-17px;font-size:84px;font-weight:900;color:#f1eee9;z-index:0;letter-spacing:-.08em}.winner>*{position:relative;z-index:1}.winner-media{min-width:0}.winner-content{padding:5px 6px 4px}.winner-head{display:flex;gap:8px;align-items:center}.rank-chip{background:#111;color:#fff;padding:7px 9px;border-radius:999px;font-size:10px;font-weight:850}.platform-chip{color:#666;background:#efede8;padding:7px 9px;border-radius:999px;font-size:10px;font-weight:700}.winner h3{font-size:25px;margin:17px 0 7px;letter-spacing:-.04em}.headline{font-size:14px;line-height:1.55;color:#555;max-width:900px;margin:0}.mini-metrics{display:grid;grid-template-columns:repeat(3,120px);gap:9px;margin:17px 0}.mini-metric{padding:10px 11px;border-radius:13px;background:#faf9f7;border:1px solid #eeeae4}.mini-metric label{display:block;font-size:9px;color:#888}.mini-metric strong{display:block;font-size:18px;margin-top:3px}.deep{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.deep-block{border-top:1px solid #ece8e2;padding-top:10px}.deep-block b{font-size:10px}.deep-block p{font-size:11.5px;color:#666;line-height:1.55;margin:5px 0 0}.winner-link{display:inline-flex;margin-top:4px;text-decoration:none;font-size:11px;font-weight:800;color:#111;padding:9px 11px;background:#f1efeb;border-radius:999px;width:max-content}
+
+.split-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.regional-note{font-size:13px;color:#67635e;line-height:1.7;margin:18px 0}.bars{display:flex;flex-direction:column;gap:12px;margin-top:20px}.bar-row{display:grid;grid-template-columns:170px 1fr 36px;gap:12px;align-items:center;font-size:11px;color:#666}.bar-track{height:8px;border-radius:99px;background:#eeece8;overflow:hidden}.bar-fill{height:100%;border-radius:99px;background:#202020}.bar-value{text-align:right;color:#777}.legend-note{font-size:10.5px;color:#aaa;margin-top:16px;line-height:1.6}footer{display:flex;justify-content:space-between;color:#aaa;font-size:10px;padding:5px 6px 0}
+
+@media(max-width:1200px){.rank-gallery{grid-template-columns:repeat(4,minmax(0,1fr))}.signal-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:920px){.page-shell{padding:16px}.hero{padding:28px}.hero-top,.section-title-row{flex-direction:column}.section-title-row>p{text-align:left;margin-top:0}.kpi-grid{grid-template-columns:repeat(2,1fr)}.rank-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}.winner{grid-template-columns:190px 1fr}.deep{grid-template-columns:1fr}.split-grid{grid-template-columns:1fr}.mini-metrics{grid-template-columns:repeat(3,1fr)}h1{font-size:39px}}
+@media(max-width:640px){.page-shell{padding:10px}.hero{padding:24px;border-radius:20px}.kpi-grid{grid-template-columns:1fr 1fr;gap:8px}.kpi{padding:16px}.kpi-value{font-size:26px}.signal-grid{grid-template-columns:1fr}.platform-board{padding:14px}.rank-gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.rank-card-body{padding:11px}.winner{grid-template-columns:1fr;padding:13px}.winner-media{max-width:260px}.post-cover.compact-cover{aspect-ratio:9/11}.mini-metrics{grid-template-columns:1fr 1fr 1fr}.bar-row{grid-template-columns:110px 1fr 28px}.hero-actions{flex-wrap:wrap}h1{font-size:34px}}
+
+/* v1.2 — global case-library search */
+.search-hub{background:linear-gradient(180deg,#fff,#fbfaf8);border:1px solid var(--line);border-radius:26px;padding:26px;box-shadow:0 10px 36px rgba(22,20,18,.03)}
+.search-hub-head{display:flex;justify-content:space-between;gap:22px;align-items:flex-start}.search-hub-head h2{font-size:27px;margin:7px 0 7px;letter-spacing:-.04em}.search-hub-head p{margin:0;color:var(--muted);font-size:12px;line-height:1.65;max-width:780px}.search-index-badge{white-space:nowrap;font-size:10px;font-weight:800;color:#666;background:#f0eeea;border-radius:999px;padding:8px 11px}
+.search-control-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;margin-top:22px;align-items:center}.global-search-box{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;gap:7px;border:1px solid #dedbd5;border-radius:17px;background:#fff;padding:5px 6px 5px 12px;box-shadow:0 7px 22px rgba(22,20,18,.04)}.search-icon{font-size:23px;line-height:1;color:#7f7a73;transform:rotate(-15deg)}.global-search-box input{border:0;outline:0;background:transparent;font:inherit;font-size:14px;color:#151412;min-width:0;padding:11px 0}.global-search-box input::placeholder{color:#aaa49d}.global-search-box button{border:0;background:#f1efeb;color:#69655f;border-radius:11px;padding:9px 11px;font-size:10px;font-weight:800;cursor:pointer}.global-search-box button:hover{background:#e9e6e1}
+.platform-filter{display:flex;gap:5px;background:#efede9;padding:5px;border-radius:14px}.platform-filter button{border:0;background:transparent;padding:9px 10px;border-radius:10px;color:#77716a;font-size:10px;font-weight:800;cursor:pointer;white-space:nowrap}.platform-filter button.active{background:#111;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.12)}
+.quick-searches{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:13px}.quick-searches>span{font-size:10px;color:#99948d}.quick-searches button{border:1px solid #e4e0da;background:#fff;border-radius:999px;padding:7px 10px;font-size:10px;color:#5e5a54;cursor:pointer}.quick-searches button:hover{border-color:#cfc9c1;background:#f8f6f3}
+.search-meta{display:flex;justify-content:space-between;gap:14px;align-items:center;border-top:1px solid #ece9e4;margin-top:18px;padding-top:14px;color:#8b867f;font-size:10.5px}.search-meta b{color:#5d5953;font-weight:800}.search-results{margin-top:14px}.search-result-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}.search-result-card{border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#fbfaf8;min-width:0;transition:transform .18s ease,box-shadow .18s ease}.search-result-card:hover{transform:translateY(-2px);box-shadow:0 13px 30px rgba(22,20,18,.08)}.search-result-card .post-cover{aspect-ratio:9/10}.search-result-body{padding:13px}.search-result-kicker{display:flex;justify-content:space-between;gap:8px;color:#918c85;font-size:9px;text-transform:uppercase;letter-spacing:.04em}.search-result-kicker span:last-child{text-transform:none;letter-spacing:0;white-space:nowrap}.search-result-body h3{font-size:16px;margin:9px 0 5px;letter-spacing:-.03em}.search-result-body>p{font-size:11.5px;line-height:1.45;color:#5f5a54;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:34px}.search-result-author{font-size:9.5px;color:#9b958d;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.search-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}.search-tags span{font-size:9px;background:#eeece8;color:#605c56;border-radius:999px;padding:5px 7px}.search-result-metrics{display:flex;justify-content:space-between;gap:6px;border-top:1px solid #e8e4de;margin-top:10px;padding-top:9px;font-size:9px;color:#77726c}.search-empty{display:flex;flex-direction:column;gap:6px;align-items:center;justify-content:center;text-align:center;padding:36px;border:1px dashed #ddd8d1;border-radius:16px;color:#8a847d}.search-empty strong{color:#393632;font-size:13px}.search-empty span{font-size:10.5px}.search-more{text-align:center;color:#9a948c;font-size:10px;padding-top:13px}
+@media(max-width:1200px){.search-result-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:920px){.search-control-row{grid-template-columns:1fr}.platform-filter{width:max-content;max-width:100%;overflow:auto}.search-result-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.search-hub-head{flex-direction:column}.search-index-badge{align-self:flex-start}}
+@media(max-width:640px){.search-hub{padding:16px;border-radius:20px}.search-result-grid{grid-template-columns:1fr 1fr;gap:9px}.search-meta{align-items:flex-start;flex-direction:column}.global-search-box{grid-template-columns:24px minmax(0,1fr) auto}.global-search-box input{font-size:12px}.platform-filter button{padding:8px 9px}.search-result-card .post-cover{aspect-ratio:9/11}.search-result-body{padding:10px}.quick-searches{max-height:78px;overflow:hidden}}
+
+</style>
+</head>
+<body>
+  <div class="page-shell">
+    <header class="hero">
+      <div class="hero-top">
+        <div>
+          <div class="eyebrow">SOCIAL INTELLIGENCE / WEEKLY</div>
+          <h1>Lens Social Radar</h1>
+          <p class="hero-sub">美瞳 · 眼睛内容 · 东南亚 / 欧美 / 中东</p>
+        </div>
+        <div class="hero-actions">
+          <span id="demoBadge" class="badge demo hidden">DEMO DATA</span>
+          <span class="badge live-dot"><i></i> Weekly refresh</span>
+        </div>
+      </div>
+      <div class="date-row">
+        <span id="dateRange">Loading…</span>
+        <span class="sep">•</span>
+        <span>每周一更新上一周周二—周日</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="search-hub">
+        <div class="search-hub-head">
+          <div>
+            <div class="eyebrow">CASE LIBRARY / GLOBAL SEARCH</div>
+            <h2>搜索社媒案例库</h2>
+            <p>输入任意关键词，搜索品牌、账号、地区、美瞳颜色、画面元素、拍摄方式、剪辑手法、Hook 与内容形式。</p>
+          </div>
+          <div class="search-index-badge">历史内容持续累积</div>
+        </div>
+        <div class="search-control-row">
+          <div class="global-search-box">
+            <span class="search-icon">⌕</span>
+            <input id="globalSearch" type="search" autocomplete="off" placeholder="例如：眼部特写 / 自然光 / Jump Cut / OLENS / 中东 / GRWM" />
+            <button id="searchClear" type="button" aria-label="清空搜索">清空</button>
+          </div>
+          <div class="platform-filter" aria-label="平台筛选">
+            <button class="active" type="button" data-search-platform="all">全部</button>
+            <button type="button" data-search-platform="instagram">Instagram</button>
+            <button type="button" data-search-platform="tiktok">TikTok</button>
+            <button type="button" data-search-platform="pinterest">Pinterest</button>
+          </div>
+        </div>
+        <div class="quick-searches" aria-label="快捷搜索">
+          <span>快捷：</span>
+          <button type="button" data-search-query="眼部特写">眼部特写</button>
+          <button type="button" data-search-query="大脸近景">大脸近景</button>
+          <button type="button" data-search-query="单眼对比">单眼对比</button>
+          <button type="button" data-search-query="自然光">自然光</button>
+          <button type="button" data-search-query="Jump Cut">Jump Cut</button>
+          <button type="button" data-search-query="卡点">卡点</button>
+          <button type="button" data-search-query="GRWM">GRWM</button>
+          <button type="button" data-search-query="产品平铺">产品平铺</button>
+        </div>
+        <div id="searchMeta" class="search-meta"></div>
+        <div id="searchResults" class="search-results"></div>
+      </section>
+
+      <section class="kpi-grid" id="kpis"></section>
+
+      <section class="panel summary-panel">
+        <div class="section-title-row">
+          <div>
+            <div class="eyebrow">WEEKLY READOUT</div>
+            <h2>本周一句话结论</h2>
+          </div>
+          <div class="method-pill" title="先在平台内部做百分位，再跨平台合并">跨平台归一化评分</div>
+        </div>
+        <p id="weeklySummary" class="summary-copy"></p>
+        <div id="signals" class="signal-grid"></div>
+      </section>
+
+      <section class="platform-leaderboards">
+        <div class="section-title-row standalone">
+          <div>
+            <div class="eyebrow">PLATFORM TOP 10</div>
+            <h2>三大平台周榜</h2>
+          </div>
+          <p>每个平台独立评出 TOP 10。封面优先使用视频首帧/帖子封面，点击即可打开原帖。</p>
+        </div>
+        <div id="platformBoards" class="platform-boards"></div>
+      </section>
+
+      <section class="overall-section">
+        <div class="section-title-row standalone">
+          <div>
+            <div class="eyebrow">OVERALL TOP 3 / DEEP DIVE</div>
+            <h2>综合总榜前三</h2>
+          </div>
+          <p>在各平台内部归一化后再跨平台比较，综合触达、互动、分享/收藏、增长速度与内容相关性。</p>
+        </div>
+        <div id="podium" class="podium-grid"></div>
+      </section>
+
+      <section class="split-grid">
+        <div class="panel">
+          <div class="eyebrow">REGIONAL SIGNALS</div>
+          <h2>地区观察</h2>
+          <p id="regionalNote" class="regional-note"></p>
+          <div id="regionBars" class="bars"></div>
+        </div>
+        <div class="panel">
+          <div class="eyebrow">FORMAT MIX</div>
+          <h2>内容类型分布</h2>
+          <div id="typeBars" class="bars"></div>
+          <div class="legend-note">用来判断本周“什么格式正在占据注意力”，而不是绝对市场份额。</div>
+        </div>
+      </section>
+
+      <footer>
+        <span>Lens Social Radar</span>
+        <span id="generatedAt"></span>
+      </footer>
+    </main>
+  </div>
+  <script>window.LENS_RADAR_DATA={"meta":{"title":"Lens Social Radar","date_start":"2026-09-29","date_end":"2026-10-04","generated_at":"2026-10-09T10:02:16.337722+00:00","collection_mode":"demo","is_demo":true,"ranking_method":"Within-platform percentile normalization: reach 35%, engagement 25%, share/save 20%, velocity 10%, relevance 10%","leaderboard_layout":"Instagram TOP10 + TikTok TOP10 + Pinterest TOP10 + cross-platform TOP3"},"stats":{"posts":30,"brands":10,"platforms":{"tiktok":10,"instagram":10,"pinterest":10},"regions":{"Southeast Asia":18,"Middle East":3,"Europe & North America":9},"content_types":{"video":10,"reel":7,"pin":10,"carousel":3}},"analysis":{"weekly_summary":"本周样本共 30 条，内容主要来自 tiktok, instagram, pinterest。高分内容普遍强调眼部近景、佩戴对比、妆容适配或可保存的信息设计。","signals":["眼部超近景与单眼对比仍是最直接的视觉钩子","Pinterest 更偏收藏价值；TikTok 更偏速度和讨论；Instagram 更适合审美与品牌资产沉淀","不同地区应分别观察妆容审美、自然度偏好与语言本地化"],"top3_analysis":[{"rank":1,"brand":"OLENS","platform":"tiktok","headline":"高触达 + 高互动意图的美瞳内容","why_it_won":"分享/收藏意图强，说明内容具有参考价值或复看价值；视频格式更适合用快速视觉钩子展示佩戴前后变化；画面主题集中在眼睛/镜片本身，产品识别效率高","creative_breakdown":"Eye-first visual, clear lens result, compact information structure and save/share intent.","what_to_copy":"复制内容结构和钩子逻辑，不直接复制素材；优先测试眼部超近景、对比、明确色彩变化和可收藏的信息结构。","risk":"跨平台指标口径不同，需结合账号规模和投放情况判断。"},{"rank":2,"brand":"Hapa Kristin","platform":"instagram","headline":"高触达 + 高互动意图的美瞳内容","why_it_won":"分享/收藏意图强，说明内容具有参考价值或复看价值；视频格式更适合用快速视觉钩子展示佩戴前后变化；画面主题集中在眼睛/镜片本身，产品识别效率高","creative_breakdown":"Eye-first visual, clear lens result, compact information structure and save/share intent.","what_to_copy":"复制内容结构和钩子逻辑，不直接复制素材；优先测试眼部超近景、对比、明确色彩变化和可收藏的信息结构。","risk":"跨平台指标口径不同，需结合账号规模和投放情况判断。"},{"rank":3,"brand":"LensMe","platform":"pinterest","headline":"高触达 + 高互动意图的美瞳内容","why_it_won":"分享/收藏意图强，说明内容具有参考价值或复看价值；画面主题集中在眼睛/镜片本身，产品识别效率高","creative_breakdown":"Eye-first visual, clear lens result, compact information structure and save/share intent.","what_to_copy":"复制内容结构和钩子逻辑，不直接复制素材；优先测试眼部超近景、对比、明确色彩变化和可收藏的信息结构。","risk":"跨平台指标口径不同，需结合账号规模和投放情况判断。"}],"regional_note":"样本地区分布：Southeast Asia 18条，Europe & North America 9条，Middle East 3条"},"posts":[{"platform":"tiktok","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_tiktok_1","caption":"One-eye comparison with macro close-up and blink reveal","posted_at":"2026-09-29T08:00:00+00:00","views":2050000,"likes":169535,"comments":2050,"shares":19987,"saves":39462,"followers":880000,"thumbnail":"assets/demo/tiktok-1.svg","local_video":null,"access_mode":"demo","content_type":"video","hashtags":[],"search_tags":["单眼对比","微距","眼部特写","眨眼","blink reveal","强Hook","大脸近景"],"visual_tags":["微距","眼部特写","大脸近景"],"shooting_tags":["微距","眼部特写","大脸近景"],"editing_tags":[],"hook_tags":["单眼对比","强Hook"],"brand":"OLENS","region":"Southeast Asia","relevance_score":96.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":332251.0,"engagement_rate":16.207,"score":94.4,"score_breakdown":{"reach":100.0,"engagement":100.0,"share_save":100.0,"velocity":44.4,"relevance":100.0},"rank":1,"platform_rank":1},{"platform":"instagram","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_instagram_1","caption":"GRWM eye makeup + colored lens transformation","posted_at":"2026-09-29T08:00:00+00:00","views":980000,"likes":81046,"comments":2050,"shares":9555,"saves":18865,"followers":880000,"thumbnail":"assets/demo/instagram-1.svg","local_video":null,"access_mode":"demo","content_type":"reel","hashtags":[],"search_tags":["GRWM","妆容变换","眼部特写","大脸近景","Jump Cut","卡点"],"visual_tags":["眼部特写","大脸近景"],"shooting_tags":["眼部特写","大脸近景"],"editing_tags":["Jump Cut","卡点"],"hook_tags":[],"brand":"Hapa Kristin","region":"Southeast Asia","relevance_score":96.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":160973.5,"engagement_rate":16.426,"score":94.4,"score_breakdown":{"reach":100.0,"engagement":100.0,"share_save":100.0,"velocity":44.4,"relevance":100.0},"rank":2,"platform_rank":1},{"platform":"pinterest","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_pinterest_1","caption":"Hazel eye moodboard: makeup pairings and shade guide","posted_at":"2026-09-29T08:00:00+00:00","views":590000,"likes":21122,"comments":322,"shares":2802,"saves":41418,"followers":880000,"thumbnail":"assets/demo/pinterest-1.svg","local_video":null,"access_mode":"demo","content_type":"pin","hashtags":[],"search_tags":["榛色美瞳","moodboard","妆容搭配","色卡","收藏型内容"],"visual_tags":[],"shooting_tags":[],"editing_tags":[],"hook_tags":[],"brand":"LensMe","region":"Middle East","relevance_score":96.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":133717.0,"engagement_rate":22.664,"score":94.4,"score_breakdown":{"reach":100.0,"engagement":100.0,"share_save":100.0,"velocity":44.4,"relevance":100.0},"rank":3,"platform_rank":1},{"platform":"tiktok","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_tiktok_2","caption":"Which brown lens looks more natural? A/B eye test","posted_at":"2026-10-04T09:00:00+00:00","views":1919400,"likes":154319,"comments":1960,"shares":17658,"saves":34549,"followers":810000,"thumbnail":"assets/demo/tiktok-2.svg","local_video":null,"access_mode":"demo","content_type":"video","hashtags":[],"search_tags":["A/B对比","棕色美瞳","提问Hook","眼部特写","评论互动"],"visual_tags":["眼部特写"],"shooting_tags":["眼部特写"],"editing_tags":[],"hook_tags":["A/B对比","提问Hook"],"brand":"Hapa Kristin","region":"Southeast Asia","relevance_score":95.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":297585.5,"engagement_rate":15.504,"score":90.0,"score_breakdown":{"reach":88.9,"engagement":88.9,"share_save":88.9,"velocity":100.0,"relevance":88.9},"rank":4,"platform_rank":2},{"platform":"instagram","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_instagram_2","caption":"Soft gray lens in daylight vs indoor light","posted_at":"2026-10-04T09:00:00+00:00","views":926440,"likes":74485,"comments":1960,"shares":8523,"saves":16675,"followers":810000,"thumbnail":"assets/demo/instagram-2.svg","local_video":null,"access_mode":"demo","content_type":"reel","hashtags":[],"search_tags":["灰色美瞳","自然光","室内外对比","眼部特写","daylight"],"visual_tags":["自然光","眼部特写"],"shooting_tags":["自然光","眼部特写"],"editing_tags":[],"hook_tags":[],"brand":"OLENS","region":"Southeast Asia","relevance_score":95.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":145661.5,"engagement_rate":15.723,"score":90.0,"score_breakdown":{"reach":88.9,"engagement":88.9,"share_save":88.9,"velocity":100.0,"relevance":88.9},"rank":5,"platform_rank":2},{"platform":"pinterest","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_pinterest_2","caption":"Pink-water contact lens campaign visual","posted_at":"2026-10-04T09:00:00+00:00","views":564520,"likes":19532,"comments":294,"shares":2540,"saves":38048,"followers":810000,"thumbnail":"assets/demo/pinterest-2.svg","local_video":null,"access_mode":"demo","content_type":"pin","hashtags":[],"search_tags":["粉色水面","产品概念","广告视觉","静物摄影","粉色"],"visual_tags":[],"shooting_tags":["静物摄影"],"editing_tags":[],"hook_tags":[],"brand":"moody","region":"Southeast Asia","relevance_score":95.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":122860.0,"engagement_rate":21.764,"score":90.0,"score_breakdown":{"reach":88.9,"engagement":88.9,"share_save":88.9,"velocity":100.0,"relevance":88.9},"rank":6,"platform_rank":2},{"platform":"tiktok","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_tiktok_3","caption":"POV: the lens shade that changes your whole makeup","posted_at":"2026-09-29T10:00:00+00:00","views":1788800,"likes":139705,"comments":1710,"shares":15473,"saves":29962,"followers":740000,"thumbnail":"assets/demo/tiktok-3.svg","local_video":null,"access_mode":"demo","content_type":"video","hashtags":[],"search_tags":["POV","妆容变换","转场","前后对比","大脸近景"],"visual_tags":["大脸近景"],"shooting_tags":["大脸近景"],"editing_tags":["转场"],"hook_tags":["POV"],"brand":"ColorCL","region":"Europe & North America","relevance_score":94.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":264449.0,"engagement_rate":14.784,"score":73.3,"score_breakdown":{"reach":77.8,"engagement":77.8,"share_save":77.8,"velocity":33.3,"relevance":77.8},"rank":7,"platform_rank":3},{"platform":"instagram","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_instagram_3","caption":"Natural hazel carousel: three makeup pairings","posted_at":"2026-09-29T10:00:00+00:00","views":872880,"likes":68171,"comments":1710,"shares":7550,"saves":14620,"followers":740000,"thumbnail":"assets/demo/instagram-3.svg","local_video":null,"access_mode":"demo","content_type":"carousel","hashtags":[],"search_tags":["榛色美瞳","carousel","妆容搭配","静态排版","收藏型内容"],"visual_tags":[],"shooting_tags":[],"editing_tags":[],"hook_tags":[],"brand":"Solotica","region":"Europe & North America","relevance_score":94.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":130791.0,"engagement_rate":14.984,"score":73.3,"score_breakdown":{"reach":77.8,"engagement":77.8,"share_save":77.8,"velocity":33.3,"relevance":77.8},"rank":8,"platform_rank":3},{"platform":"pinterest","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_pinterest_3","caption":"Blue-gray contact lens macro photography","posted_at":"2026-09-29T10:00:00+00:00","views":539040,"likes":18003,"comments":266,"shares":2290,"saves":34821,"followers":740000,"thumbnail":"assets/demo/pinterest-3.svg","local_video":null,"access_mode":"demo","content_type":"pin","hashtags":[],"search_tags":["蓝灰美瞳","微距摄影","虹膜特写","产品细节","macro"],"visual_tags":["虹膜特写"],"shooting_tags":[],"editing_tags":[],"hook_tags":[],"brand":"Solotica","region":"Europe & North America","relevance_score":94.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":112457.5,"engagement_rate":20.863,"score":73.3,"score_breakdown":{"reach":77.8,"engagement":77.8,"share_save":77.8,"velocity":33.3,"relevance":77.8},"rank":9,"platform_rank":3},{"platform":"tiktok","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_tiktok_4","caption":"Three shades in five seconds","posted_at":"2026-10-04T11:00:00+00:00","views":1607200,"likes":121825,"comments":1620,"shares":13018,"saves":24911,"followers":670000,"thumbnail":"assets/demo/tiktok-4.svg","local_video":null,"access_mode":"demo","content_type":"video","hashtags":[],"search_tags":["五秒三色","快速剪辑","Jump Cut","卡点","换色"],"visual_tags":[],"shooting_tags":[],"editing_tags":["快速剪辑","Jump Cut","卡点"],"hook_tags":[],"brand":"TTDEYE","region":"Europe & North America","relevance_score":93.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":226396.5,"engagement_rate":14.086,"score":68.9,"score_breakdown":{"reach":66.7,"engagement":66.7,"share_save":66.7,"velocity":88.9,"relevance":66.7},"rank":10,"platform_rank":4},{"platform":"instagram","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_instagram_4","caption":"Arabic beauty creator brown lens reveal","posted_at":"2026-10-04T11:00:00+00:00","views":768320,"likes":58238,"comments":1620,"shares":6223,"saves":11908,"followers":670000,"thumbnail":"assets/demo/instagram-4.svg","local_video":null,"access_mode":"demo","content_type":"reel","hashtags":[],"search_tags":["棕色美瞳","中东妆容","大脸近景","reveal","创作者口播"],"visual_tags":["大脸近景"],"shooting_tags":["大脸近景"],"editing_tags":[],"hook_tags":[],"brand":"LensMe","region":"Middle East","relevance_score":93.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":109917.0,"engagement_rate":14.306,"score":68.9,"score_breakdown":{"reach":66.7,"engagement":66.7,"share_save":66.7,"velocity":88.9,"relevance":66.7},"rank":11,"platform_rank":4},{"platform":"pinterest","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_pinterest_4","caption":"Brown lens shade chart for everyday makeup","posted_at":"2026-10-04T11:00:00+00:00","views":462560,"likes":14894,"comments":238,"shares":1850,"saves":28586,"followers":670000,"thumbnail":"assets/demo/pinterest-4.svg","local_video":null,"access_mode":"demo","content_type":"pin","hashtags":[],"search_tags":["棕色美瞳","shade chart","日常妆容","信息图","收藏"],"visual_tags":[],"shooting_tags":[],"editing_tags":[],"hook_tags":[],"brand":"OLENS","region":"Southeast Asia","relevance_score":93.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":92385.0,"engagement_rate":19.973,"score":68.9,"score_breakdown":{"reach":66.7,"engagement":66.7,"share_save":66.7,"velocity":88.9,"relevance":66.7},"rank":12,"platform_rank":4},{"platform":"tiktok","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_tiktok_5","caption":"Before/after iris transformation with pink makeup","posted_at":"2026-09-29T12:00:00+00:00","views":1476600,"likes":108530,"comments":1370,"shares":11148,"saves":21041,"followers":600000,"thumbnail":"assets/demo/tiktok-5.svg","local_video":null,"access_mode":"demo","content_type":"video","hashtags":[],"search_tags":["before after","虹膜变化","粉色妆容","match cut","变装"],"visual_tags":[],"shooting_tags":[],"editing_tags":["match cut"],"hook_tags":["before after"],"brand":"moody","region":"Southeast Asia","relevance_score":92.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":197316.5,"engagement_rate":13.363,"score":52.2,"score_breakdown":{"reach":55.6,"engagement":55.6,"share_save":55.6,"velocity":22.2,"relevance":55.6},"rank":13,"platform_rank":5},{"platform":"instagram","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_instagram_5","caption":"Pink-toned eye close-up with glossy makeup","posted_at":"2026-09-29T12:00:00+00:00","views":714760,"likes":52534,"comments":1370,"shares":5396,"saves":10185,"followers":600000,"thumbnail":"assets/demo/instagram-5.svg","local_video":null,"access_mode":"demo","content_type":"reel","hashtags":[],"search_tags":["粉色妆容","眼部超近景","高光妆感","柔光","beauty close-up"],"visual_tags":["眼部超近景","柔光"],"shooting_tags":["眼部超近景"],"editing_tags":[],"hook_tags":[],"brand":"moody","region":"Southeast Asia","relevance_score":92.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":96924.5,"engagement_rate":13.56,"score":52.2,"score_breakdown":{"reach":55.6,"engagement":55.6,"share_save":55.6,"velocity":22.2,"relevance":55.6},"rank":14,"platform_rank":5},{"platform":"pinterest","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_pinterest_5","caption":"Soft pink eye aesthetic board","posted_at":"2026-09-29T12:00:00+00:00","views":437080,"likes":13549,"comments":210,"shares":1639,"saves":25787,"followers":600000,"thumbnail":"assets/demo/pinterest-5.svg","local_video":null,"access_mode":"demo","content_type":"pin","hashtags":[],"search_tags":["粉色眼妆","aesthetic","眼部特写","情绪板","灵感"],"visual_tags":["眼部特写"],"shooting_tags":["眼部特写"],"editing_tags":[],"hook_tags":[],"brand":"Hapa Kristin","region":"Southeast Asia","relevance_score":92.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":83353.5,"engagement_rate":19.071,"score":52.2,"score_breakdown":{"reach":55.6,"engagement":55.6,"share_save":55.6,"velocity":22.2,"relevance":55.6},"rank":15,"platform_rank":5},{"platform":"tiktok","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_tiktok_6","caption":"Outdoor sunlight lens test","posted_at":"2026-10-04T13:00:00+00:00","views":1346000,"likes":95835,"comments":1280,"shares":9421,"saves":17498,"followers":530000,"thumbnail":"assets/demo/tiktok-6.svg","local_video":null,"access_mode":"demo","content_type":"video","hashtags":[],"search_tags":["户外测试","自然光","阳光","真实显色","手持"],"visual_tags":["自然光"],"shooting_tags":["自然光","手持"],"editing_tags":[],"hook_tags":[],"brand":"Solotica","region":"Europe & North America","relevance_score":91.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":170403.0,"engagement_rate":12.66,"score":47.8,"score_breakdown":{"reach":44.4,"engagement":44.4,"share_save":44.4,"velocity":77.8,"relevance":44.4},"rank":16,"platform_rank":6},{"platform":"instagram","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_instagram_6","caption":"Fast lens shade switch with face close-up","posted_at":"2026-10-04T13:00:00+00:00","views":661200,"likes":47077,"comments":1280,"shares":4628,"saves":8595,"followers":530000,"thumbnail":"assets/demo/instagram-6.svg","local_video":null,"access_mode":"demo","content_type":"reel","hashtags":[],"search_tags":["快速换色","大脸近景","Jump Cut","卡点","快速剪辑"],"visual_tags":["大脸近景"],"shooting_tags":["大脸近景"],"editing_tags":["Jump Cut","卡点","快速剪辑"],"hook_tags":[],"brand":"TTDEYE","region":"Europe & North America","relevance_score":91.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":85008.5,"engagement_rate":12.857,"score":47.8,"score_breakdown":{"reach":44.4,"engagement":44.4,"share_save":44.4,"velocity":77.8,"relevance":44.4},"rank":17,"platform_rank":6},{"platform":"pinterest","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_pinterest_6","caption":"Cool gray lens photography reference","posted_at":"2026-10-04T13:00:00+00:00","views":411600,"likes":12265,"comments":182,"shares":1440,"saves":23131,"followers":530000,"thumbnail":"assets/demo/pinterest-6.svg","local_video":null,"access_mode":"demo","content_type":"pin","hashtags":[],"search_tags":["冷灰美瞳","摄影参考","眼部近景","冷调","reference"],"visual_tags":[],"shooting_tags":[],"editing_tags":[],"hook_tags":[],"brand":"TTDEYE","region":"Europe & North America","relevance_score":91.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":74776.5,"engagement_rate":18.167,"score":47.8,"score_breakdown":{"reach":44.4,"engagement":44.4,"share_save":44.4,"velocity":77.8,"relevance":44.4},"rank":18,"platform_rank":6},{"platform":"tiktok","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_tiktok_7","caption":"Creator reaction to subtle enlarging lens","posted_at":"2026-09-29T14:00:00+00:00","views":1164400,"likes":80227,"comments":1030,"shares":7510,"saves":13681,"followers":460000,"thumbnail":"assets/demo/tiktok-7.svg","local_video":null,"access_mode":"demo","content_type":"video","hashtags":[],"search_tags":["reaction","扩瞳","口播","近景自拍","评论驱动"],"visual_tags":[],"shooting_tags":[],"editing_tags":[],"hook_tags":["reaction"],"brand":"LensMe","region":"Middle East","relevance_score":90.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":139019.5,"engagement_rate":11.939,"score":31.1,"score_breakdown":{"reach":33.3,"engagement":33.3,"share_save":33.3,"velocity":11.1,"relevance":33.3},"rank":19,"platform_rank":7},{"platform":"instagram","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_instagram_7","caption":"Soft-focus daily lens styling","posted_at":"2026-09-29T14:00:00+00:00","views":556640,"likes":38352,"comments":1030,"shares":3590,"saves":6540,"followers":460000,"thumbnail":"assets/demo/instagram-7.svg","local_video":null,"access_mode":"demo","content_type":"carousel","hashtags":[],"search_tags":["日常美瞳","柔焦","生活方式","carousel","自然妆"],"visual_tags":[],"shooting_tags":[],"editing_tags":[],"hook_tags":[],"brand":"MOLAK","region":"Southeast Asia","relevance_score":90.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":67532.0,"engagement_rate":12.132,"score":31.1,"score_breakdown":{"reach":33.3,"engagement":33.3,"share_save":33.3,"velocity":11.1,"relevance":33.3},"rank":20,"platform_rank":7},{"platform":"pinterest","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_pinterest_7","caption":"Warm brown iris close-up moodboard","posted_at":"2026-09-29T14:00:00+00:00","views":335120,"likes":9584,"comments":154,"shares":1089,"saves":17895,"followers":460000,"thumbnail":"assets/demo/pinterest-7.svg","local_video":null,"access_mode":"demo","content_type":"pin","hashtags":[],"search_tags":["暖棕","虹膜特写","moodboard","暖调","微距"],"visual_tags":["虹膜特写","微距"],"shooting_tags":["微距"],"editing_tags":[],"hook_tags":[],"brand":"ColorCL","region":"Europe & North America","relevance_score":90.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":57896.5,"engagement_rate":17.276,"score":31.1,"score_breakdown":{"reach":33.3,"engagement":33.3,"share_save":33.3,"velocity":11.1,"relevance":33.3},"rank":21,"platform_rank":7},{"platform":"tiktok","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_tiktok_8","caption":"School-to-night makeup switch","posted_at":"2026-10-04T15:00:00+00:00","views":1033800,"likes":68851,"comments":940,"shares":6099,"saves":10854,"followers":390000,"thumbnail":"assets/demo/tiktok-8.svg","local_video":null,"access_mode":"demo","content_type":"video","hashtags":[],"search_tags":["school to night","妆容切换","转场","卡点","场景变化"],"visual_tags":[],"shooting_tags":[],"editing_tags":["转场","卡点"],"hook_tags":[],"brand":"MOLAK","region":"Southeast Asia","relevance_score":89.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":116163.0,"engagement_rate":11.237,"score":26.7,"score_breakdown":{"reach":22.2,"engagement":22.2,"share_save":22.2,"velocity":66.7,"relevance":22.2},"rank":22,"platform_rank":8},{"platform":"instagram","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_instagram_8","caption":"Clean-girl makeup with subtle enlarging lens","posted_at":"2026-10-04T15:00:00+00:00","views":503080,"likes":33505,"comments":940,"shares":2968,"saves":5282,"followers":390000,"thumbnail":"assets/demo/instagram-8.svg","local_video":null,"access_mode":"demo","content_type":"reel","hashtags":[],"search_tags":["clean girl","扩瞳","近景自拍","自然光","轻妆"],"visual_tags":["自然光"],"shooting_tags":["自然光"],"editing_tags":[],"hook_tags":[],"brand":"TOPARDS","region":"Southeast Asia","relevance_score":89.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":57494.0,"engagement_rate":11.428,"score":26.7,"score_breakdown":{"reach":22.2,"engagement":22.2,"share_save":22.2,"velocity":66.7,"relevance":22.2},"rank":23,"platform_rank":8},{"platform":"pinterest","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_pinterest_8","caption":"Natural lens + blush palette guide","posted_at":"2026-10-04T15:00:00+00:00","views":309640,"likes":8484,"comments":126,"shares":928,"saves":15667,"followers":390000,"thumbnail":"assets/demo/pinterest-8.svg","local_video":null,"access_mode":"demo","content_type":"pin","hashtags":[],"search_tags":["自然美瞳","腮红搭配","palette guide","信息排版","收藏"],"visual_tags":[],"shooting_tags":[],"editing_tags":[],"hook_tags":[],"brand":"MOLAK","region":"Southeast Asia","relevance_score":89.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":50687.5,"engagement_rate":16.37,"score":26.7,"score_breakdown":{"reach":22.2,"engagement":22.2,"share_save":22.2,"velocity":66.7,"relevance":22.2},"rank":24,"platform_rank":8},{"platform":"tiktok","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_tiktok_9","caption":"Macro iris reveal with head turn","posted_at":"2026-09-29T16:00:00+00:00","views":903200,"likes":58075,"comments":690,"shares":4832,"saves":8354,"followers":320000,"thumbnail":"assets/demo/tiktok-9.svg","local_video":null,"access_mode":"demo","content_type":"video","hashtags":[],"search_tags":["微距虹膜","转头","眼部超近景","动作匹配","macro"],"visual_tags":["眼部超近景"],"shooting_tags":["眼部超近景"],"editing_tags":["动作匹配"],"hook_tags":[],"brand":"TOPARDS","region":"Southeast Asia","relevance_score":88.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":94836.0,"engagement_rate":10.5,"score":10.0,"score_breakdown":{"reach":11.1,"engagement":11.1,"share_save":11.1,"velocity":0.0,"relevance":11.1},"rank":25,"platform_rank":9},{"platform":"instagram","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_instagram_9","caption":"Flash test: warm brown vs cool gray","posted_at":"2026-09-29T16:00:00+00:00","views":449520,"likes":28904,"comments":690,"shares":2404,"saves":4158,"followers":320000,"thumbnail":"assets/demo/instagram-9.svg","local_video":null,"access_mode":"demo","content_type":"carousel","hashtags":[],"search_tags":["闪光灯测试","棕色美瞳","灰色美瞳","A/B对比","flash"],"visual_tags":["闪光灯测试"],"shooting_tags":[],"editing_tags":[],"hook_tags":["A/B对比"],"brand":"ColorCL","region":"Europe & North America","relevance_score":88.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":47891.0,"engagement_rate":10.654,"score":10.0,"score_breakdown":{"reach":11.1,"engagement":11.1,"share_save":11.1,"velocity":0.0,"relevance":11.1},"rank":26,"platform_rank":9},{"platform":"pinterest","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_pinterest_9","caption":"Minimal product flat-lay with eye crop","posted_at":"2026-09-29T16:00:00+00:00","views":284160,"likes":7444,"comments":98,"shares":781,"saves":13582,"followers":320000,"thumbnail":"assets/demo/pinterest-9.svg","local_video":null,"access_mode":"demo","content_type":"pin","hashtags":[],"search_tags":["产品平铺","flat lay","眼睛裁切","极简构图","静物"],"visual_tags":["产品平铺"],"shooting_tags":[],"editing_tags":[],"hook_tags":[],"brand":"TOPARDS","region":"Southeast Asia","relevance_score":88.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":43938.0,"engagement_rate":15.462,"score":10.0,"score_breakdown":{"reach":11.1,"engagement":11.1,"share_save":11.1,"velocity":0.0,"relevance":11.1},"rank":27,"platform_rank":9},{"platform":"tiktok","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_tiktok_10","caption":"No-makeup lens check in window light","posted_at":"2026-10-04T17:00:00+00:00","views":721600,"likes":44739,"comments":600,"shares":3463,"saves":5772,"followers":250000,"thumbnail":"assets/demo/tiktok-10.svg","local_video":null,"access_mode":"demo","content_type":"video","hashtags":[],"search_tags":["素颜测试","窗边自然光","真实感","低广告感","近景自拍"],"visual_tags":[],"shooting_tags":["窗边自然光"],"editing_tags":[],"hook_tags":[],"brand":"Chu's me","region":"Southeast Asia","relevance_score":87.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":70758.0,"engagement_rate":9.806,"score":5.6,"score_breakdown":{"reach":0.0,"engagement":0.0,"share_save":0.0,"velocity":55.6,"relevance":0.0},"rank":28,"platform_rank":10},{"platform":"instagram","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_instagram_10","caption":"Campus makeup look with natural brown lens","posted_at":"2026-10-04T17:00:00+00:00","views":344960,"likes":21387,"comments":600,"shares":1655,"saves":2759,"followers":250000,"thumbnail":"assets/demo/instagram-10.svg","local_video":null,"access_mode":"demo","content_type":"reel","hashtags":[],"search_tags":["校园妆容","自然棕","学生感","自然光","通勤"],"visual_tags":["自然光"],"shooting_tags":["自然光"],"editing_tags":[],"hook_tags":[],"brand":"Chu's me","region":"Southeast Asia","relevance_score":87.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":34449.5,"engagement_rate":9.987,"score":5.6,"score_breakdown":{"reach":0.0,"engagement":0.0,"share_save":0.0,"velocity":55.6,"relevance":0.0},"rank":29,"platform_rank":10},{"platform":"pinterest","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_pinterest_10","caption":"Daily lens styling save-board","posted_at":"2026-10-04T17:00:00+00:00","views":207680,"likes":5192,"comments":70,"shares":519,"saves":9345,"followers":250000,"thumbnail":"assets/demo/pinterest-10.svg","local_video":null,"access_mode":"demo","content_type":"pin","hashtags":[],"search_tags":["日常搭配","save board","生活方式","参考图","收藏型内容"],"visual_tags":[],"shooting_tags":[],"editing_tags":[],"hook_tags":[],"brand":"Chu's me","region":"Southeast Asia","relevance_score":87.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":30251.5,"engagement_rate":14.566,"score":5.6,"score_breakdown":{"reach":0.0,"engagement":0.0,"share_save":0.0,"velocity":55.6,"relevance":0.0},"rank":30,"platform_rank":10}]};window.LENS_RADAR_ARCHIVE={"meta":{"generated_at":"2026-10-09T10:02:16.340201+00:00","collection_mode":"demo","description":"Historical searchable Lens Social Radar case library","count":30},"posts":[{"platform":"tiktok","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_tiktok_10","caption":"No-makeup lens check in window light","posted_at":"2026-10-04T17:00:00+00:00","views":721600,"likes":44739,"comments":600,"shares":3463,"saves":5772,"followers":250000,"thumbnail":"assets/demo/tiktok-10.svg","local_video":null,"access_mode":"demo","content_type":"video","hashtags":[],"search_tags":["素颜测试","窗边自然光","真实感","低广告感","近景自拍"],"visual_tags":[],"shooting_tags":["窗边自然光"],"editing_tags":[],"hook_tags":[],"brand":"Chu's me","region":"Southeast Asia","relevance_score":87.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":70758.0,"engagement_rate":9.806,"score":5.6,"score_breakdown":{"reach":0.0,"engagement":0.0,"share_save":0.0,"velocity":55.6,"relevance":0.0},"rank":28,"platform_rank":10,"archive_id":"209a7f627d0a83e2d22a","week_start":"2026-09-29","week_end":"2026-10-04"},{"platform":"instagram","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_instagram_10","caption":"Campus makeup look with natural brown lens","posted_at":"2026-10-04T17:00:00+00:00","views":344960,"likes":21387,"comments":600,"shares":1655,"saves":2759,"followers":250000,"thumbnail":"assets/demo/instagram-10.svg","local_video":null,"access_mode":"demo","content_type":"reel","hashtags":[],"search_tags":["校园妆容","自然棕","学生感","自然光","通勤"],"visual_tags":["自然光"],"shooting_tags":["自然光"],"editing_tags":[],"hook_tags":[],"brand":"Chu's me","region":"Southeast Asia","relevance_score":87.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":34449.5,"engagement_rate":9.987,"score":5.6,"score_breakdown":{"reach":0.0,"engagement":0.0,"share_save":0.0,"velocity":55.6,"relevance":0.0},"rank":29,"platform_rank":10,"archive_id":"ee0cf57ab03c7231a62e","week_start":"2026-09-29","week_end":"2026-10-04"},{"platform":"pinterest","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_pinterest_10","caption":"Daily lens styling save-board","posted_at":"2026-10-04T17:00:00+00:00","views":207680,"likes":5192,"comments":70,"shares":519,"saves":9345,"followers":250000,"thumbnail":"assets/demo/pinterest-10.svg","local_video":null,"access_mode":"demo","content_type":"pin","hashtags":[],"search_tags":["日常搭配","save board","生活方式","参考图","收藏型内容"],"visual_tags":[],"shooting_tags":[],"editing_tags":[],"hook_tags":[],"brand":"Chu's me","region":"Southeast Asia","relevance_score":87.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":30251.5,"engagement_rate":14.566,"score":5.6,"score_breakdown":{"reach":0.0,"engagement":0.0,"share_save":0.0,"velocity":55.6,"relevance":0.0},"rank":30,"platform_rank":10,"archive_id":"7aa4041dd3c7e28c7aae","week_start":"2026-09-29","week_end":"2026-10-04"},{"platform":"tiktok","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_tiktok_8","caption":"School-to-night makeup switch","posted_at":"2026-10-04T15:00:00+00:00","views":1033800,"likes":68851,"comments":940,"shares":6099,"saves":10854,"followers":390000,"thumbnail":"assets/demo/tiktok-8.svg","local_video":null,"access_mode":"demo","content_type":"video","hashtags":[],"search_tags":["school to night","妆容切换","转场","卡点","场景变化"],"visual_tags":[],"shooting_tags":[],"editing_tags":["转场","卡点"],"hook_tags":[],"brand":"MOLAK","region":"Southeast Asia","relevance_score":89.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":116163.0,"engagement_rate":11.237,"score":26.7,"score_breakdown":{"reach":22.2,"engagement":22.2,"share_save":22.2,"velocity":66.7,"relevance":22.2},"rank":22,"platform_rank":8,"archive_id":"5d1b1cc3b361b9bcf85b","week_start":"2026-09-29","week_end":"2026-10-04"},{"platform":"instagram","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_instagram_8","caption":"Clean-girl makeup with subtle enlarging lens","posted_at":"2026-10-04T15:00:00+00:00","views":503080,"likes":33505,"comments":940,"shares":2968,"saves":5282,"followers":390000,"thumbnail":"assets/demo/instagram-8.svg","local_video":null,"access_mode":"demo","content_type":"reel","hashtags":[],"search_tags":["clean girl","扩瞳","近景自拍","自然光","轻妆"],"visual_tags":["自然光"],"shooting_tags":["自然光"],"editing_tags":[],"hook_tags":[],"brand":"TOPARDS","region":"Southeast Asia","relevance_score":89.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":57494.0,"engagement_rate":11.428,"score":26.7,"score_breakdown":{"reach":22.2,"engagement":22.2,"share_save":22.2,"velocity":66.7,"relevance":22.2},"rank":23,"platform_rank":8,"archive_id":"de10afe5fc12c283423c","week_start":"2026-09-29","week_end":"2026-10-04"},{"platform":"pinterest","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_pinterest_8","caption":"Natural lens + blush palette guide","posted_at":"2026-10-04T15:00:00+00:00","views":309640,"likes":8484,"comments":126,"shares":928,"saves":15667,"followers":390000,"thumbnail":"assets/demo/pinterest-8.svg","local_video":null,"access_mode":"demo","content_type":"pin","hashtags":[],"search_tags":["自然美瞳","腮红搭配","palette guide","信息排版","收藏"],"visual_tags":[],"shooting_tags":[],"editing_tags":[],"hook_tags":[],"brand":"MOLAK","region":"Southeast Asia","relevance_score":89.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":50687.5,"engagement_rate":16.37,"score":26.7,"score_breakdown":{"reach":22.2,"engagement":22.2,"share_save":22.2,"velocity":66.7,"relevance":22.2},"rank":24,"platform_rank":8,"archive_id":"dffb8d93164b8a8c5bdb","week_start":"2026-09-29","week_end":"2026-10-04"},{"platform":"tiktok","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_tiktok_6","caption":"Outdoor sunlight lens test","posted_at":"2026-10-04T13:00:00+00:00","views":1346000,"likes":95835,"comments":1280,"shares":9421,"saves":17498,"followers":530000,"thumbnail":"assets/demo/tiktok-6.svg","local_video":null,"access_mode":"demo","content_type":"video","hashtags":[],"search_tags":["户外测试","自然光","阳光","真实显色","手持"],"visual_tags":["自然光"],"shooting_tags":["自然光","手持"],"editing_tags":[],"hook_tags":[],"brand":"Solotica","region":"Europe & North America","relevance_score":91.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":170403.0,"engagement_rate":12.66,"score":47.8,"score_breakdown":{"reach":44.4,"engagement":44.4,"share_save":44.4,"velocity":77.8,"relevance":44.4},"rank":16,"platform_rank":6,"archive_id":"6ec8a91a20bb39d1c67f","week_start":"2026-09-29","week_end":"2026-10-04"},{"platform":"instagram","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_instagram_6","caption":"Fast lens shade switch with face close-up","posted_at":"2026-10-04T13:00:00+00:00","views":661200,"likes":47077,"comments":1280,"shares":4628,"saves":8595,"followers":530000,"thumbnail":"assets/demo/instagram-6.svg","local_video":null,"access_mode":"demo","content_type":"reel","hashtags":[],"search_tags":["快速换色","大脸近景","Jump Cut","卡点","快速剪辑"],"visual_tags":["大脸近景"],"shooting_tags":["大脸近景"],"editing_tags":["Jump Cut","卡点","快速剪辑"],"hook_tags":[],"brand":"TTDEYE","region":"Europe & North America","relevance_score":91.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":85008.5,"engagement_rate":12.857,"score":47.8,"score_breakdown":{"reach":44.4,"engagement":44.4,"share_save":44.4,"velocity":77.8,"relevance":44.4},"rank":17,"platform_rank":6,"archive_id":"a8fcd25057a3b320dc72","week_start":"2026-09-29","week_end":"2026-10-04"},{"platform":"pinterest","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_pinterest_6","caption":"Cool gray lens photography reference","posted_at":"2026-10-04T13:00:00+00:00","views":411600,"likes":12265,"comments":182,"shares":1440,"saves":23131,"followers":530000,"thumbnail":"assets/demo/pinterest-6.svg","local_video":null,"access_mode":"demo","content_type":"pin","hashtags":[],"search_tags":["冷灰美瞳","摄影参考","眼部近景","冷调","reference"],"visual_tags":[],"shooting_tags":[],"editing_tags":[],"hook_tags":[],"brand":"TTDEYE","region":"Europe & North America","relevance_score":91.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":74776.5,"engagement_rate":18.167,"score":47.8,"score_breakdown":{"reach":44.4,"engagement":44.4,"share_save":44.4,"velocity":77.8,"relevance":44.4},"rank":18,"platform_rank":6,"archive_id":"f0d13890b7093e6b1406","week_start":"2026-09-29","week_end":"2026-10-04"},{"platform":"tiktok","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_tiktok_4","caption":"Three shades in five seconds","posted_at":"2026-10-04T11:00:00+00:00","views":1607200,"likes":121825,"comments":1620,"shares":13018,"saves":24911,"followers":670000,"thumbnail":"assets/demo/tiktok-4.svg","local_video":null,"access_mode":"demo","content_type":"video","hashtags":[],"search_tags":["五秒三色","快速剪辑","Jump Cut","卡点","换色"],"visual_tags":[],"shooting_tags":[],"editing_tags":["快速剪辑","Jump Cut","卡点"],"hook_tags":[],"brand":"TTDEYE","region":"Europe & North America","relevance_score":93.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":226396.5,"engagement_rate":14.086,"score":68.9,"score_breakdown":{"reach":66.7,"engagement":66.7,"share_save":66.7,"velocity":88.9,"relevance":66.7},"rank":10,"platform_rank":4,"archive_id":"74ff7c79a9527d88a318","week_start":"2026-09-29","week_end":"2026-10-04"},{"platform":"instagram","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_instagram_4","caption":"Arabic beauty creator brown lens reveal","posted_at":"2026-10-04T11:00:00+00:00","views":768320,"likes":58238,"comments":1620,"shares":6223,"saves":11908,"followers":670000,"thumbnail":"assets/demo/instagram-4.svg","local_video":null,"access_mode":"demo","content_type":"reel","hashtags":[],"search_tags":["棕色美瞳","中东妆容","大脸近景","reveal","创作者口播"],"visual_tags":["大脸近景"],"shooting_tags":["大脸近景"],"editing_tags":[],"hook_tags":[],"brand":"LensMe","region":"Middle East","relevance_score":93.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":109917.0,"engagement_rate":14.306,"score":68.9,"score_breakdown":{"reach":66.7,"engagement":66.7,"share_save":66.7,"velocity":88.9,"relevance":66.7},"rank":11,"platform_rank":4,"archive_id":"e979ddfc397dc8f7c9ac","week_start":"2026-09-29","week_end":"2026-10-04"},{"platform":"pinterest","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_pinterest_4","caption":"Brown lens shade chart for everyday makeup","posted_at":"2026-10-04T11:00:00+00:00","views":462560,"likes":14894,"comments":238,"shares":1850,"saves":28586,"followers":670000,"thumbnail":"assets/demo/pinterest-4.svg","local_video":null,"access_mode":"demo","content_type":"pin","hashtags":[],"search_tags":["棕色美瞳","shade chart","日常妆容","信息图","收藏"],"visual_tags":[],"shooting_tags":[],"editing_tags":[],"hook_tags":[],"brand":"OLENS","region":"Southeast Asia","relevance_score":93.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":92385.0,"engagement_rate":19.973,"score":68.9,"score_breakdown":{"reach":66.7,"engagement":66.7,"share_save":66.7,"velocity":88.9,"relevance":66.7},"rank":12,"platform_rank":4,"archive_id":"059e59d06b063128420f","week_start":"2026-09-29","week_end":"2026-10-04"},{"platform":"tiktok","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_tiktok_2","caption":"Which brown lens looks more natural? A/B eye test","posted_at":"2026-10-04T09:00:00+00:00","views":1919400,"likes":154319,"comments":1960,"shares":17658,"saves":34549,"followers":810000,"thumbnail":"assets/demo/tiktok-2.svg","local_video":null,"access_mode":"demo","content_type":"video","hashtags":[],"search_tags":["A/B对比","棕色美瞳","提问Hook","眼部特写","评论互动"],"visual_tags":["眼部特写"],"shooting_tags":["眼部特写"],"editing_tags":[],"hook_tags":["A/B对比","提问Hook"],"brand":"Hapa Kristin","region":"Southeast Asia","relevance_score":95.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":297585.5,"engagement_rate":15.504,"score":90.0,"score_breakdown":{"reach":88.9,"engagement":88.9,"share_save":88.9,"velocity":100.0,"relevance":88.9},"rank":4,"platform_rank":2,"archive_id":"1e7030757c5a06011cd2","week_start":"2026-09-29","week_end":"2026-10-04"},{"platform":"instagram","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_instagram_2","caption":"Soft gray lens in daylight vs indoor light","posted_at":"2026-10-04T09:00:00+00:00","views":926440,"likes":74485,"comments":1960,"shares":8523,"saves":16675,"followers":810000,"thumbnail":"assets/demo/instagram-2.svg","local_video":null,"access_mode":"demo","content_type":"reel","hashtags":[],"search_tags":["灰色美瞳","自然光","室内外对比","眼部特写","daylight"],"visual_tags":["自然光","眼部特写"],"shooting_tags":["自然光","眼部特写"],"editing_tags":[],"hook_tags":[],"brand":"OLENS","region":"Southeast Asia","relevance_score":95.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":145661.5,"engagement_rate":15.723,"score":90.0,"score_breakdown":{"reach":88.9,"engagement":88.9,"share_save":88.9,"velocity":100.0,"relevance":88.9},"rank":5,"platform_rank":2,"archive_id":"b6b872167b0f7d339685","week_start":"2026-09-29","week_end":"2026-10-04"},{"platform":"pinterest","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_pinterest_2","caption":"Pink-water contact lens campaign visual","posted_at":"2026-10-04T09:00:00+00:00","views":564520,"likes":19532,"comments":294,"shares":2540,"saves":38048,"followers":810000,"thumbnail":"assets/demo/pinterest-2.svg","local_video":null,"access_mode":"demo","content_type":"pin","hashtags":[],"search_tags":["粉色水面","产品概念","广告视觉","静物摄影","粉色"],"visual_tags":[],"shooting_tags":["静物摄影"],"editing_tags":[],"hook_tags":[],"brand":"moody","region":"Southeast Asia","relevance_score":95.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":122860.0,"engagement_rate":21.764,"score":90.0,"score_breakdown":{"reach":88.9,"engagement":88.9,"share_save":88.9,"velocity":100.0,"relevance":88.9},"rank":6,"platform_rank":2,"archive_id":"d1bb87a8e5c9c95a359c","week_start":"2026-09-29","week_end":"2026-10-04"},{"platform":"tiktok","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_tiktok_9","caption":"Macro iris reveal with head turn","posted_at":"2026-09-29T16:00:00+00:00","views":903200,"likes":58075,"comments":690,"shares":4832,"saves":8354,"followers":320000,"thumbnail":"assets/demo/tiktok-9.svg","local_video":null,"access_mode":"demo","content_type":"video","hashtags":[],"search_tags":["微距虹膜","转头","眼部超近景","动作匹配","macro"],"visual_tags":["眼部超近景"],"shooting_tags":["眼部超近景"],"editing_tags":["动作匹配"],"hook_tags":[],"brand":"TOPARDS","region":"Southeast Asia","relevance_score":88.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":94836.0,"engagement_rate":10.5,"score":10.0,"score_breakdown":{"reach":11.1,"engagement":11.1,"share_save":11.1,"velocity":0.0,"relevance":11.1},"rank":25,"platform_rank":9,"archive_id":"374d3b7abf8b505ea0a5","week_start":"2026-09-29","week_end":"2026-10-04"},{"platform":"instagram","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_instagram_9","caption":"Flash test: warm brown vs cool gray","posted_at":"2026-09-29T16:00:00+00:00","views":449520,"likes":28904,"comments":690,"shares":2404,"saves":4158,"followers":320000,"thumbnail":"assets/demo/instagram-9.svg","local_video":null,"access_mode":"demo","content_type":"carousel","hashtags":[],"search_tags":["闪光灯测试","棕色美瞳","灰色美瞳","A/B对比","flash"],"visual_tags":["闪光灯测试"],"shooting_tags":[],"editing_tags":[],"hook_tags":["A/B对比"],"brand":"ColorCL","region":"Europe & North America","relevance_score":88.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":47891.0,"engagement_rate":10.654,"score":10.0,"score_breakdown":{"reach":11.1,"engagement":11.1,"share_save":11.1,"velocity":0.0,"relevance":11.1},"rank":26,"platform_rank":9,"archive_id":"4d31514a500e3e881316","week_start":"2026-09-29","week_end":"2026-10-04"},{"platform":"pinterest","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_pinterest_9","caption":"Minimal product flat-lay with eye crop","posted_at":"2026-09-29T16:00:00+00:00","views":284160,"likes":7444,"comments":98,"shares":781,"saves":13582,"followers":320000,"thumbnail":"assets/demo/pinterest-9.svg","local_video":null,"access_mode":"demo","content_type":"pin","hashtags":[],"search_tags":["产品平铺","flat lay","眼睛裁切","极简构图","静物"],"visual_tags":["产品平铺"],"shooting_tags":[],"editing_tags":[],"hook_tags":[],"brand":"TOPARDS","region":"Southeast Asia","relevance_score":88.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":43938.0,"engagement_rate":15.462,"score":10.0,"score_breakdown":{"reach":11.1,"engagement":11.1,"share_save":11.1,"velocity":0.0,"relevance":11.1},"rank":27,"platform_rank":9,"archive_id":"d073cb4171192b4ead8c","week_start":"2026-09-29","week_end":"2026-10-04"},{"platform":"tiktok","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_tiktok_7","caption":"Creator reaction to subtle enlarging lens","posted_at":"2026-09-29T14:00:00+00:00","views":1164400,"likes":80227,"comments":1030,"shares":7510,"saves":13681,"followers":460000,"thumbnail":"assets/demo/tiktok-7.svg","local_video":null,"access_mode":"demo","content_type":"video","hashtags":[],"search_tags":["reaction","扩瞳","口播","近景自拍","评论驱动"],"visual_tags":[],"shooting_tags":[],"editing_tags":[],"hook_tags":["reaction"],"brand":"LensMe","region":"Middle East","relevance_score":90.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":139019.5,"engagement_rate":11.939,"score":31.1,"score_breakdown":{"reach":33.3,"engagement":33.3,"share_save":33.3,"velocity":11.1,"relevance":33.3},"rank":19,"platform_rank":7,"archive_id":"9c81b74b9c685bbe0af6","week_start":"2026-09-29","week_end":"2026-10-04"},{"platform":"instagram","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_instagram_7","caption":"Soft-focus daily lens styling","posted_at":"2026-09-29T14:00:00+00:00","views":556640,"likes":38352,"comments":1030,"shares":3590,"saves":6540,"followers":460000,"thumbnail":"assets/demo/instagram-7.svg","local_video":null,"access_mode":"demo","content_type":"carousel","hashtags":[],"search_tags":["日常美瞳","柔焦","生活方式","carousel","自然妆"],"visual_tags":[],"shooting_tags":[],"editing_tags":[],"hook_tags":[],"brand":"MOLAK","region":"Southeast Asia","relevance_score":90.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":67532.0,"engagement_rate":12.132,"score":31.1,"score_breakdown":{"reach":33.3,"engagement":33.3,"share_save":33.3,"velocity":11.1,"relevance":33.3},"rank":20,"platform_rank":7,"archive_id":"9cef5771dd33b2ecd907","week_start":"2026-09-29","week_end":"2026-10-04"},{"platform":"pinterest","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_pinterest_7","caption":"Warm brown iris close-up moodboard","posted_at":"2026-09-29T14:00:00+00:00","views":335120,"likes":9584,"comments":154,"shares":1089,"saves":17895,"followers":460000,"thumbnail":"assets/demo/pinterest-7.svg","local_video":null,"access_mode":"demo","content_type":"pin","hashtags":[],"search_tags":["暖棕","虹膜特写","moodboard","暖调","微距"],"visual_tags":["虹膜特写","微距"],"shooting_tags":["微距"],"editing_tags":[],"hook_tags":[],"brand":"ColorCL","region":"Europe & North America","relevance_score":90.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":57896.5,"engagement_rate":17.276,"score":31.1,"score_breakdown":{"reach":33.3,"engagement":33.3,"share_save":33.3,"velocity":11.1,"relevance":33.3},"rank":21,"platform_rank":7,"archive_id":"c6ef270655abd8ae88ba","week_start":"2026-09-29","week_end":"2026-10-04"},{"platform":"tiktok","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_tiktok_5","caption":"Before/after iris transformation with pink makeup","posted_at":"2026-09-29T12:00:00+00:00","views":1476600,"likes":108530,"comments":1370,"shares":11148,"saves":21041,"followers":600000,"thumbnail":"assets/demo/tiktok-5.svg","local_video":null,"access_mode":"demo","content_type":"video","hashtags":[],"search_tags":["before after","虹膜变化","粉色妆容","match cut","变装"],"visual_tags":[],"shooting_tags":[],"editing_tags":["match cut"],"hook_tags":["before after"],"brand":"moody","region":"Southeast Asia","relevance_score":92.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":197316.5,"engagement_rate":13.363,"score":52.2,"score_breakdown":{"reach":55.6,"engagement":55.6,"share_save":55.6,"velocity":22.2,"relevance":55.6},"rank":13,"platform_rank":5,"archive_id":"99b60e1a8a657593ddc1","week_start":"2026-09-29","week_end":"2026-10-04"},{"platform":"instagram","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_instagram_5","caption":"Pink-toned eye close-up with glossy makeup","posted_at":"2026-09-29T12:00:00+00:00","views":714760,"likes":52534,"comments":1370,"shares":5396,"saves":10185,"followers":600000,"thumbnail":"assets/demo/instagram-5.svg","local_video":null,"access_mode":"demo","content_type":"reel","hashtags":[],"search_tags":["粉色妆容","眼部超近景","高光妆感","柔光","beauty close-up"],"visual_tags":["眼部超近景","柔光"],"shooting_tags":["眼部超近景"],"editing_tags":[],"hook_tags":[],"brand":"moody","region":"Southeast Asia","relevance_score":92.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":96924.5,"engagement_rate":13.56,"score":52.2,"score_breakdown":{"reach":55.6,"engagement":55.6,"share_save":55.6,"velocity":22.2,"relevance":55.6},"rank":14,"platform_rank":5,"archive_id":"d7148b25e85ddd85a9e8","week_start":"2026-09-29","week_end":"2026-10-04"},{"platform":"pinterest","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_pinterest_5","caption":"Soft pink eye aesthetic board","posted_at":"2026-09-29T12:00:00+00:00","views":437080,"likes":13549,"comments":210,"shares":1639,"saves":25787,"followers":600000,"thumbnail":"assets/demo/pinterest-5.svg","local_video":null,"access_mode":"demo","content_type":"pin","hashtags":[],"search_tags":["粉色眼妆","aesthetic","眼部特写","情绪板","灵感"],"visual_tags":["眼部特写"],"shooting_tags":["眼部特写"],"editing_tags":[],"hook_tags":[],"brand":"Hapa Kristin","region":"Southeast Asia","relevance_score":92.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":83353.5,"engagement_rate":19.071,"score":52.2,"score_breakdown":{"reach":55.6,"engagement":55.6,"share_save":55.6,"velocity":22.2,"relevance":55.6},"rank":15,"platform_rank":5,"archive_id":"dfdeadd70eb768ce5ef6","week_start":"2026-09-29","week_end":"2026-10-04"},{"platform":"tiktok","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_tiktok_3","caption":"POV: the lens shade that changes your whole makeup","posted_at":"2026-09-29T10:00:00+00:00","views":1788800,"likes":139705,"comments":1710,"shares":15473,"saves":29962,"followers":740000,"thumbnail":"assets/demo/tiktok-3.svg","local_video":null,"access_mode":"demo","content_type":"video","hashtags":[],"search_tags":["POV","妆容变换","转场","前后对比","大脸近景"],"visual_tags":["大脸近景"],"shooting_tags":["大脸近景"],"editing_tags":["转场"],"hook_tags":["POV"],"brand":"ColorCL","region":"Europe & North America","relevance_score":94.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":264449.0,"engagement_rate":14.784,"score":73.3,"score_breakdown":{"reach":77.8,"engagement":77.8,"share_save":77.8,"velocity":33.3,"relevance":77.8},"rank":7,"platform_rank":3,"archive_id":"69254f1e92b3cb271f3c","week_start":"2026-09-29","week_end":"2026-10-04"},{"platform":"instagram","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_instagram_3","caption":"Natural hazel carousel: three makeup pairings","posted_at":"2026-09-29T10:00:00+00:00","views":872880,"likes":68171,"comments":1710,"shares":7550,"saves":14620,"followers":740000,"thumbnail":"assets/demo/instagram-3.svg","local_video":null,"access_mode":"demo","content_type":"carousel","hashtags":[],"search_tags":["榛色美瞳","carousel","妆容搭配","静态排版","收藏型内容"],"visual_tags":[],"shooting_tags":[],"editing_tags":[],"hook_tags":[],"brand":"Solotica","region":"Europe & North America","relevance_score":94.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":130791.0,"engagement_rate":14.984,"score":73.3,"score_breakdown":{"reach":77.8,"engagement":77.8,"share_save":77.8,"velocity":33.3,"relevance":77.8},"rank":8,"platform_rank":3,"archive_id":"5db38ee50f40be87a043","week_start":"2026-09-29","week_end":"2026-10-04"},{"platform":"pinterest","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_pinterest_3","caption":"Blue-gray contact lens macro photography","posted_at":"2026-09-29T10:00:00+00:00","views":539040,"likes":18003,"comments":266,"shares":2290,"saves":34821,"followers":740000,"thumbnail":"assets/demo/pinterest-3.svg","local_video":null,"access_mode":"demo","content_type":"pin","hashtags":[],"search_tags":["蓝灰美瞳","微距摄影","虹膜特写","产品细节","macro"],"visual_tags":["虹膜特写"],"shooting_tags":[],"editing_tags":[],"hook_tags":[],"brand":"Solotica","region":"Europe & North America","relevance_score":94.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":112457.5,"engagement_rate":20.863,"score":73.3,"score_breakdown":{"reach":77.8,"engagement":77.8,"share_save":77.8,"velocity":33.3,"relevance":77.8},"rank":9,"platform_rank":3,"archive_id":"9d6735ec48bed54c3496","week_start":"2026-09-29","week_end":"2026-10-04"},{"platform":"tiktok","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_tiktok_1","caption":"One-eye comparison with macro close-up and blink reveal","posted_at":"2026-09-29T08:00:00+00:00","views":2050000,"likes":169535,"comments":2050,"shares":19987,"saves":39462,"followers":880000,"thumbnail":"assets/demo/tiktok-1.svg","local_video":null,"access_mode":"demo","content_type":"video","hashtags":[],"search_tags":["单眼对比","微距","眼部特写","眨眼","blink reveal","强Hook","大脸近景"],"visual_tags":["微距","眼部特写","大脸近景"],"shooting_tags":["微距","眼部特写","大脸近景"],"editing_tags":[],"hook_tags":["单眼对比","强Hook"],"brand":"OLENS","region":"Southeast Asia","relevance_score":96.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":332251.0,"engagement_rate":16.207,"score":94.4,"score_breakdown":{"reach":100.0,"engagement":100.0,"share_save":100.0,"velocity":44.4,"relevance":100.0},"rank":1,"platform_rank":1,"archive_id":"f88cebcf6274cdc2eaac","week_start":"2026-09-29","week_end":"2026-10-04"},{"platform":"instagram","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_instagram_1","caption":"GRWM eye makeup + colored lens transformation","posted_at":"2026-09-29T08:00:00+00:00","views":980000,"likes":81046,"comments":2050,"shares":9555,"saves":18865,"followers":880000,"thumbnail":"assets/demo/instagram-1.svg","local_video":null,"access_mode":"demo","content_type":"reel","hashtags":[],"search_tags":["GRWM","妆容变换","眼部特写","大脸近景","Jump Cut","卡点"],"visual_tags":["眼部特写","大脸近景"],"shooting_tags":["眼部特写","大脸近景"],"editing_tags":["Jump Cut","卡点"],"hook_tags":[],"brand":"Hapa Kristin","region":"Southeast Asia","relevance_score":96.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":160973.5,"engagement_rate":16.426,"score":94.4,"score_breakdown":{"reach":100.0,"engagement":100.0,"share_save":100.0,"velocity":44.4,"relevance":100.0},"rank":2,"platform_rank":1,"archive_id":"57a843054ffb7c84adf9","week_start":"2026-09-29","week_end":"2026-10-04"},{"platform":"pinterest","url":null,"mobile_url":null,"embed_url":null,"video_id":null,"author":"@demo_pinterest_1","caption":"Hazel eye moodboard: makeup pairings and shade guide","posted_at":"2026-09-29T08:00:00+00:00","views":590000,"likes":21122,"comments":322,"shares":2802,"saves":41418,"followers":880000,"thumbnail":"assets/demo/pinterest-1.svg","local_video":null,"access_mode":"demo","content_type":"pin","hashtags":[],"search_tags":["榛色美瞳","moodboard","妆容搭配","色卡","收藏型内容"],"visual_tags":[],"shooting_tags":[],"editing_tags":[],"hook_tags":[],"brand":"LensMe","region":"Middle East","relevance_score":96.0,"media_notes":"Eye-first visual, clear lens result, compact information structure and save/share intent.","engagement_weighted":133717.0,"engagement_rate":22.664,"score":94.4,"score_breakdown":{"reach":100.0,"engagement":100.0,"share_save":100.0,"velocity":44.4,"relevance":100.0},"rank":3,"platform_rank":1,"archive_id":"e24182f40b2e87793323","week_start":"2026-09-29","week_end":"2026-10-04"}]};</script>
+  <script>
+const fmt = new Intl.NumberFormat('zh-CN', { notation: 'compact', maximumFractionDigits: 1 });
+let dataset = null;
+let archiveDataset = null;
+let searchPlatform = 'all';
+let searchTimer = null;
+
+function esc(v='') {
+  return String(v).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+}
+function n(v){ return Number(v || 0); }
+function pct(v){ return `${Number(v || 0).toFixed(2)}%`; }
+function platformLabel(p){ return ({instagram:'Instagram',tiktok:'TikTok',pinterest:'Pinterest'})[p] || p; }
+function arr(v){ return Array.isArray(v) ? v : (v ? [v] : []); }
+function normalizeText(v=''){ return String(v).toLowerCase().normalize('NFKC').trim(); }
+
+function renderKpis(data){
+  const posts = data.posts || [];
+  const views = posts.reduce((a,x)=>a+n(x.views),0);
+  const saves = posts.reduce((a,x)=>a+n(x.saves),0);
+  const top = posts[0] || {};
+  const cards = [
+    ['采集内容', fmt.format(data.stats?.posts || 0), '本周有效帖子'],
+    ['监测品牌', fmt.format(data.stats?.brands || 0), '跨地区品牌/账号'],
+    ['样本触达', fmt.format(views), '播放或曝光合计'],
+    ['收藏信号', fmt.format(saves), `总榜 TOP 1：${esc(top.brand || '—')}`],
+  ];
+  document.querySelector('#kpis').innerHTML = cards.map(([a,b,c])=>`<article class="kpi"><div class="kpi-label">${a}</div><div class="kpi-value">${b}</div><div class="kpi-sub">${c}</div></article>`).join('');
+}
+
+function getTopAnalysis(rank){
+  return (dataset.analysis?.top3_analysis || []).find(x=>Number(x.rank)===Number(rank)) || {};
+}
+
+function accessLabel(x){
+  const mode = String(x.access_mode || '').toLowerCase();
+  if(mode === 'mobile' || mode === 'mobile_only') return '建议手机打开';
+  if(mode === 'local') return '本地素材';
+  if(mode === 'demo') return 'DEMO';
+  return '';
+}
+
+function posterInner(x){
+  const label = `${platformLabel(x.platform)} · ${x.brand || 'Post'}`;
+  if(x.thumbnail){
+    return `<img src="${esc(x.thumbnail)}" alt="${esc(label)} 首帧/封面" loading="lazy" onerror="this.remove();this.parentElement.classList.add('image-error')">`;
+  }
+  return '';
+}
+
+function coverMarkup(x, rankLabel, compact=false){
+  const tag = x.url ? 'a' : 'div';
+  const href = x.url ? ` href="${esc(x.url)}" target="_blank" rel="noopener noreferrer"` : '';
+  const access = accessLabel(x);
+  return `<${tag} class="post-cover ${x.url ? 'clickable' : 'no-link'} ${compact ? 'compact-cover' : ''} platform-${esc(x.platform)}"${href} aria-label="${x.url ? '打开原帖' : '示例内容，无原帖链接'}">
+    ${posterInner(x)}
+    <div class="poster-fallback"><div class="iris-mark"><i></i></div><span>${esc(platformLabel(x.platform))}</span></div>
+    <span class="cover-rank">${esc(rankLabel)}</span>
+    ${access ? `<span class="access-badge">${esc(access)}</span>` : ''}
+    <span class="cover-action">${x.url ? '打开原帖 ↗' : '示例封面'}</span>
+  </${tag}>`;
+}
+
+function platformPosts(platform){
+  const rows = (dataset.posts || []).filter(x=>x.platform===platform);
+  rows.sort((a,b)=>{
+    const ar = n(a.platform_rank) || 9999;
+    const br = n(b.platform_rank) || 9999;
+    if(ar !== br) return ar - br;
+    return n(b.score)-n(a.score);
+  });
+  return rows.slice(0,10);
+}
+
+function renderPlatformBoards(){
+  const platforms = ['instagram','tiktok','pinterest'];
+  document.getElementById('platformBoards').innerHTML = platforms.map(platform=>{
+    const posts = platformPosts(platform);
+    const cards = posts.map((x,i)=>{
+      const rank = n(x.platform_rank) || i+1;
+      return `<article class="rank-card">
+        ${coverMarkup(x, `#${rank}`)}
+        <div class="rank-card-body">
+          <div class="rank-card-top"><span class="platform-pill">${esc(platformLabel(platform))}</span><span class="score-number">${n(x.score).toFixed(1)} 分</span></div>
+          <h3>${esc(x.brand || 'Unknown')}</h3>
+          <p class="card-caption">${esc(x.caption || '—')}</p>
+          <div class="card-author">${esc(x.author || '')} · ${esc(x.region || '')}</div>
+          <div class="card-metrics">
+            <span><b>${fmt.format(n(x.views))}</b> 触达</span>
+            <span><b>${pct(x.engagement_rate)}</b> 互动率</span>
+            <span><b>${fmt.format(n(x.shares)+n(x.saves))}</b> 分享+收藏</span>
+          </div>
+        </div>
+      </article>`;
+    }).join('');
+    return `<section class="platform-board platform-board-${platform}">
+      <div class="platform-board-head">
+        <div><div class="eyebrow">${esc(platformLabel(platform).toUpperCase())} WEEKLY</div><h3>${esc(platformLabel(platform))} TOP 10</h3></div>
+        <div class="board-count">${posts.length} / 10</div>
+      </div>
+      <div class="rank-gallery">${cards || '<div class="empty-state">本周暂无有效数据。</div>'}</div>
+    </section>`;
+  }).join('');
+}
+
+function renderPodium(){
+  const top = (dataset.posts || []).slice(0,3);
+  document.querySelector('#podium').innerHTML = top.map((x,i)=>{
+    const a = getTopAnalysis(x.rank);
+    const link = x.url ? `<a class="winner-link" target="_blank" rel="noopener noreferrer" href="${esc(x.url)}">打开原帖 ↗</a>` : '';
+    return `<article class="winner rank-${i+1}" data-rank="0${i+1}">
+      <div class="winner-media">${coverMarkup(x, `总榜 #${x.rank}`, true)}</div>
+      <div class="winner-content">
+        <div class="winner-head"><span class="rank-chip">#${x.rank}</span><span class="platform-chip">${esc(platformLabel(x.platform))} · 平台#${esc(x.platform_rank || '—')} · ${esc(x.region)}</span></div>
+        <h3>${esc(x.brand)}</h3>
+        <p class="headline">${esc(a.headline || x.caption || '')}</p>
+        <div class="mini-metrics">
+          <div class="mini-metric"><label>综合分</label><strong>${n(x.score).toFixed(1)}</strong></div>
+          <div class="mini-metric"><label>触达</label><strong>${fmt.format(n(x.views))}</strong></div>
+          <div class="mini-metric"><label>互动率</label><strong>${pct(x.engagement_rate)}</strong></div>
+        </div>
+        <div class="deep">
+          <div class="deep-block"><b>为什么火</b><p>${esc(a.why_it_won || '—')}</p></div>
+          <div class="deep-block"><b>画面 / 节奏 / 信息结构</b><p>${esc(a.creative_breakdown || x.media_notes || '—')}</p></div>
+          <div class="deep-block"><b>值得复制</b><p>${esc(a.what_to_copy || '—')}</p></div>
+          <div class="deep-block"><b>判断风险</b><p>${esc(a.risk || '—')}</p></div>
+          ${link}
+        </div>
+      </div>
+    </article>`;
+  }).join('');
+}
+
+function renderSignals(){
+  document.getElementById('weeklySummary').textContent = dataset.analysis?.weekly_summary || '—';
+  document.getElementById('signals').innerHTML=(dataset.analysis?.signals || []).map((x,i)=>`<div class="signal"><b>SIGNAL 0${i+1}</b>${esc(x)}</div>`).join('');
+  document.getElementById('regionalNote').textContent=dataset.analysis?.regional_note || '—';
+}
+function renderBars(target, obj){
+  const entries=Object.entries(obj||{}).sort((a,b)=>b[1]-a[1]);
+  const max=Math.max(1,...entries.map(x=>n(x[1])));
+  document.getElementById(target).innerHTML=entries.map(([k,v])=>`<div class="bar-row"><span>${esc(k)}</span><span class="bar-track"><i class="bar-fill" style="display:block;width:${(n(v)/max*100).toFixed(1)}%"></i></span><span class="bar-value">${v}</span></div>`).join('');
+}
+
+// ---------- Search / case library ----------
+function searchAliases(x){
+  const region = String(x.region || '');
+  const type = String(x.content_type || '');
+  const aliases = [];
+  if(region === 'Southeast Asia') aliases.push('东南亚','东南亚市场','sea');
+  if(region === 'Europe & North America') aliases.push('欧美','欧洲','北美','欧美市场');
+  if(region === 'Middle East') aliases.push('中东','中东市场','middle east');
+  if(type === 'video' || type === 'reel') aliases.push('视频','短视频');
+  if(type === 'carousel') aliases.push('轮播','图文','多图');
+  if(type === 'pin') aliases.push('图片','pin','pinterest图片');
+  if(x.platform === 'instagram') aliases.push('ins','ig','instagram','reels');
+  if(x.platform === 'tiktok') aliases.push('tiktok','tt','抖音海外版');
+  if(x.platform === 'pinterest') aliases.push('pinterest','pin');
+  return aliases;
+}
+
+function searchableParts(x){
+  const tagFields = ['hashtags','search_tags','visual_tags','shooting_tags','editing_tags','hook_tags'];
+  const tags = tagFields.flatMap(k=>arr(x[k]));
+  return {
+    primary: [x.brand,x.author,x.caption,x.platform,platformLabel(x.platform),x.region,x.content_type].filter(Boolean),
+    tags,
+    other: [x.media_notes,x.week_start,x.week_end,...searchAliases(x)].filter(Boolean),
+  };
+}
+
+function searchHaystack(x){
+  const p = searchableParts(x);
+  return normalizeText([...p.primary,...p.tags,...p.other].join(' | '));
+}
+
+function queryTokens(q){
+  return normalizeText(q).split(/[\s,+，/|]+/).filter(Boolean);
+}
+
+function relevanceForSearch(x, query){
+  const q = normalizeText(query);
+  const tokens = queryTokens(query);
+  const parts = searchableParts(x);
+  const primary = normalizeText(parts.primary.join(' | '));
+  const tags = parts.tags.map(normalizeText);
+  const hay = searchHaystack(x);
+  if(!tokens.length) return -1;
+  if(!tokens.every(t=>hay.includes(t))) return -1;
+  let score = 0;
+  if(primary.includes(q)) score += 22;
+  if(normalizeText(x.brand).includes(q)) score += 18;
+  if(normalizeText(x.author).includes(q)) score += 14;
+  if(normalizeText(x.caption).includes(q)) score += 12;
+  for(const t of tokens){
+    if(tags.some(tag=>tag === t)) score += 14;
+    else if(tags.some(tag=>tag.includes(t))) score += 9;
+    if(primary.includes(t)) score += 5;
+  }
+  score += Math.min(5, n(x.score)/20);
+  return score;
+}
+
+function matchedTags(x, query){
+  const tokens = queryTokens(query);
+  const tags = ['search_tags','visual_tags','shooting_tags','editing_tags','hook_tags','hashtags'].flatMap(k=>arr(x[k]));
+  const matched = tags.filter(tag=>tokens.some(t=>normalizeText(tag).includes(t) || t.includes(normalizeText(tag))));
+  return [...new Set(matched)].slice(0,5);
+}
+
+function formatWeek(x){
+  if(x.week_start && x.week_end) return `${x.week_start} → ${x.week_end}`;
+  const d = String(x.posted_at || '').slice(0,10);
+  return d || '历史案例';
+}
+
+function renderSearchResults(query){
+  const wrap = document.getElementById('searchResults');
+  const meta = document.getElementById('searchMeta');
+  const q = String(query || '').trim();
+  if(!q){
+    wrap.innerHTML = '';
+    meta.innerHTML = `<span>可搜索：品牌 / 账号 / 地区 / 美瞳颜色 / 拍摄手法 / 剪辑手法 / Hook / 内容形式</span><b>${fmt.format((archiveDataset?.posts || dataset?.posts || []).length)} 条案例已建立索引</b>`;
+    return;
+  }
+  const source = archiveDataset?.posts || dataset?.posts || [];
+  let results = source
+    .filter(x=>searchPlatform === 'all' || x.platform === searchPlatform)
+    .map(x=>({x, r:relevanceForSearch(x,q)}))
+    .filter(row=>row.r >= 0)
+    .sort((a,b)=>b.r-a.r || n(b.x.score)-n(a.x.score));
+  const total = results.length;
+  results = results.slice(0,24);
+  meta.innerHTML = `<span>“${esc(q)}” 找到 <b>${total}</b> 条匹配${searchPlatform==='all'?'':` · ${esc(platformLabel(searchPlatform))}`}</span><b>按关键词相关度 + 内容综合分排序</b>`;
+  if(!results.length){
+    wrap.innerHTML = `<div class="search-empty"><strong>没有找到对应案例</strong><span>试试更短的词，例如“自然光”“眼部特写”“OLENS”“Jump Cut”或切换到“全部平台”。</span></div>`;
+    return;
+  }
+  wrap.innerHTML = `<div class="search-result-grid">${results.map(({x})=>{
+    const tags = matchedTags(x,q);
+    const rank = x.platform_rank ? `${platformLabel(x.platform)} #${x.platform_rank}` : platformLabel(x.platform);
+    return `<article class="search-result-card">
+      ${coverMarkup(x, rank)}
+      <div class="search-result-body">
+        <div class="search-result-kicker"><span>${esc(platformLabel(x.platform))}</span><span>${esc(formatWeek(x))}</span></div>
+        <h3>${esc(x.brand || 'Unknown')}</h3>
+        <p>${esc(x.caption || '—')}</p>
+        <div class="search-result-author">${esc(x.author || '')} · ${esc(x.region || '')}</div>
+        <div class="search-tags">${(tags.length?tags:arr(x.search_tags).slice(0,4)).map(t=>`<span>${esc(t)}</span>`).join('')}</div>
+        <div class="search-result-metrics"><span>${fmt.format(n(x.views))} 触达</span><span>${pct(x.engagement_rate)} 互动</span><span>${n(x.score).toFixed(1)} 分</span></div>
+      </div>
+    </article>`;
+  }).join('')}</div>${total>24?`<div class="search-more">当前先展示相关度最高的 24 条，共 ${total} 条匹配。</div>`:''}`;
+}
+
+function runSearch(){
+  const input = document.getElementById('globalSearch');
+  renderSearchResults(input?.value || '');
+}
+
+function setupSearch(){
+  const input = document.getElementById('globalSearch');
+  if(!input) return;
+  input.addEventListener('input', ()=>{
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(runSearch, 140);
+  });
+  input.addEventListener('keydown', e=>{
+    if(e.key === 'Escape'){
+      input.value='';
+      runSearch();
+      input.blur();
+    }
+  });
+  document.getElementById('searchClear')?.addEventListener('click', ()=>{
+    input.value='';
+    runSearch();
+    input.focus();
+  });
+  document.querySelectorAll('[data-search-query]').forEach(btn=>btn.addEventListener('click', ()=>{
+    input.value=btn.dataset.searchQuery || '';
+    runSearch();
+    input.focus();
+  }));
+  document.querySelectorAll('[data-search-platform]').forEach(btn=>btn.addEventListener('click', ()=>{
+    searchPlatform=btn.dataset.searchPlatform || 'all';
+    document.querySelectorAll('[data-search-platform]').forEach(x=>x.classList.toggle('active',x===btn));
+    runSearch();
+  }));
+  renderSearchResults('');
+}
+
+async function loadArchive(){
+  if(window.LENS_RADAR_ARCHIVE){
+    archiveDataset = window.LENS_RADAR_ARCHIVE;
+    return;
+  }
+  try{
+    const res=await fetch('data/archive.json',{cache:'no-store'});
+    if(res.ok) archiveDataset=await res.json();
+  }catch(_err){
+    archiveDataset = {posts: dataset?.posts || []};
+  }
+  if(!archiveDataset) archiveDataset = {posts: dataset?.posts || []};
+}
+
+async function boot(){
+  try{
+    if (window.LENS_RADAR_DATA) {
+      dataset = window.LENS_RADAR_DATA;
+    } else {
+      const res=await fetch('data/weekly.json',{cache:'no-store'});
+      if(!res.ok) throw new Error(`HTTP ${res.status}`);
+      dataset=await res.json();
+    }
+    await loadArchive();
+    document.getElementById('dateRange').textContent=`${dataset.meta.date_start} → ${dataset.meta.date_end}`;
+    if(dataset.meta.is_demo) document.getElementById('demoBadge').classList.remove('hidden');
+    document.getElementById('generatedAt').textContent=`Generated ${new Date(dataset.meta.generated_at).toLocaleString('zh-CN')}`;
+    setupSearch();
+    renderKpis(dataset);
+    renderSignals();
+    renderPlatformBoards();
+    renderPodium();
+    renderBars('regionBars', dataset.stats?.regions);
+    renderBars('typeBars', dataset.stats?.content_types);
+  }catch(err){
+    document.body.innerHTML=`<div style="font-family:sans-serif;padding:40px"><h2>无法读取周报数据</h2><p>${esc(err.message)}</p><p>请先运行 <code>python scripts/weekly_update.py --mode demo</code>。</p></div>`;
+  }
+}
+boot();
+
+</script>
+</body>
+</html>
