@@ -6,7 +6,7 @@ on:
       collection_mode:
         description: "Collection mode"
         required: true
-        default: "demo"
+        default: "apify"
         type: choice
         options:
           - demo
