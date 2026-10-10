@@ -24,7 +24,11 @@ function shareSaveText(x){
   if(!hasShare && !hasSave) return '—';
   return fmt.format((hasShare?n(x.shares):0)+(hasSave?n(x.saves):0));
 }
-function heatText(x){ return x?.heat_score === null || x?.heat_score === undefined ? '—' : Number(x.heat_score).toFixed(1); }
+function isRankEligible(x){ return x?.ranking_eligible !== false; }
+function heatText(x){
+  const value = x?.heat_score ?? x?.score;
+  return value === null || value === undefined ? '—' : Number(value).toFixed(1);
+}
 function confidenceText(x){ return x?.data_confidence === null || x?.data_confidence === undefined ? '—' : `${Number(x.data_confidence).toFixed(0)}%`; }
 function platformLabel(p){ return ({instagram:'Instagram',tiktok:'TikTok',pinterest:'Pinterest'})[p] || p; }
 function arr(v){ return Array.isArray(v) ? v : (v ? [v] : []); }
@@ -32,7 +36,7 @@ function normalizeText(v=''){ return String(v).toLowerCase().normalize('NFKC').t
 
 function renderKpis(data){
   const posts = data.posts || [];
-  const eligible = posts.filter(x=>x.ranking_eligible);
+  const eligible = posts.filter(isRankEligible);
   const views = eligible.reduce((a,x)=>a+(metricKnown(x,'views')?n(x.views):0),0);
   const top = eligible[0] || {};
   const cards = [
@@ -78,7 +82,7 @@ function coverMarkup(x, rankLabel, compact=false){
 }
 
 function platformPosts(platform){
-  const rows = (dataset.posts || []).filter(x=>x.platform===platform && x.ranking_eligible);
+  const rows = (dataset.posts || []).filter(x=>x.platform===platform && isRankEligible(x));
   rows.sort((a,b)=>{
     const ar = n(a.platform_rank) || 9999;
     const br = n(b.platform_rank) || 9999;
@@ -123,7 +127,7 @@ function renderPlatformBoards(){
 }
 
 function renderPodium(){
-  const top = (dataset.posts || []).filter(x=>x.ranking_eligible).slice(0,3);
+  const top = (dataset.posts || []).filter(isRankEligible).slice(0,3);
   document.querySelector('#podium').innerHTML = top.map((x,i)=>{
     const a = getTopAnalysis(x.rank);
     const link = x.url ? `<a class="winner-link" target="_blank" rel="noopener noreferrer" href="${esc(x.url)}">打开原帖 ↗</a>` : '';
@@ -216,7 +220,7 @@ function relevanceForSearch(x, query){
     else if(tags.some(tag=>tag.includes(t))) score += 9;
     if(primary.includes(t)) score += 5;
   }
-  score += x.ranking_eligible ? Math.min(5, n(x.heat_score)/20) : 0;
+  score += isRankEligible(x) ? Math.min(5, n(x.heat_score ?? x.score)/20) : 0;
   return score;
 }
 
@@ -266,7 +270,7 @@ function renderSearchResults(query){
         <p>${esc(x.caption || '—')}</p>
         <div class="search-result-author">${esc(x.author || '')} · ${esc(x.region || '')}</div>
         <div class="search-tags">${(tags.length?tags:arr(x.search_tags).slice(0,4)).map(t=>`<span>${esc(t)}</span>`).join('')}</div>
-        <div class="search-result-metrics"><span>${metricText(x,'views')} 触达</span><span>${pct(x.engagement_rate)} 互动</span><span>${x.ranking_eligible ? `热度 ${heatText(x)}` : '仅案例库'}</span></div>
+        <div class="search-result-metrics"><span>${metricText(x,'views')} 触达</span><span>${pct(x.engagement_rate)} 互动</span><span>${isRankEligible(x) ? `热度 ${heatText(x)}` : '仅案例库'}</span></div>
       </div>
     </article>`;
   }).join('')}</div>${total>24?`<div class="search-more">当前先展示相关度最高的 24 条，共 ${total} 条匹配。</div>`:''}`;
