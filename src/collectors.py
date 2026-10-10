@@ -94,8 +94,18 @@ def normalize(raw: dict[str, Any], platform_hint: str | None = None) -> dict[str
         item[canonical] = _pick(raw, candidates)
     item["platform"] = str(item.get("platform") or platform_hint or "unknown").lower()
     item["posted_at"] = _normalize_posted_at(item.get("posted_at"))
+
+    # Preserve whether a metric was actually supplied by the data source.
+    # A missing value is NOT the same thing as a confirmed zero. The numeric
+    # field remains 0 for backward-compatible rendering, while ranking uses
+    # metric_availability to decide whether the number is trustworthy.
+    metric_availability: dict[str, bool] = {}
     for metric in ("views", "likes", "comments", "shares", "saves", "followers"):
-        item[metric] = int(safe_num(item.get(metric)))
+        raw_metric = item.get(metric)
+        metric_availability[metric] = raw_metric not in (None, "")
+        item[metric] = int(safe_num(raw_metric))
+    item["metric_availability"] = metric_availability
+
     item["brand"] = raw.get("brand") or raw.get("brand_name") or item.get("author") or "Unknown"
     item["region"] = raw.get("region") or raw.get("market") or "Unknown"
     item["relevance_score"] = safe_num(raw.get("relevance_score"), 50.0)
