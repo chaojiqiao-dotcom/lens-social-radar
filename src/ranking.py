@@ -210,7 +210,11 @@ def _component_values(platform: str, item: dict[str, Any], as_of: datetime) -> d
         return {
             "reach": log_scale(views) if views is not None else None,
             "engagement": _ratio(weighted, views),
-            "share_save": _ratio(intent, views),
+            "share_save": (
+                _ratio(intent, views)
+                if (_available(item, "shares") or _available(item, "saves"))
+                else None
+            ),
             "velocity": weighted / age,
         }
 
