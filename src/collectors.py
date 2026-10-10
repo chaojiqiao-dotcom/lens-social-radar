@@ -13,13 +13,14 @@ from .utils import load_json, safe_num
 
 COMMON_KEYS = {
     "platform": ["platform"],
-    "url": ["url", "share_url", "shareUrl", "webVideoUrl", "postUrl", "postPage", "pinUrl", "canonicalUrl"],
+    "url": ["url", "share_url", "shareUrl", "webVideoUrl", "postUrl", "postPage", "pinUrl", "pin_url", "canonicalUrl"],
     "mobile_url": ["mobile_url", "mobileUrl", "appUrl", "deepLink", "deeplink"],
     "embed_url": ["embed_url", "embedUrl", "embed_link", "embedLink"],
-    "video_id": ["video_id", "videoId", "id", "item_id", "itemId", "pinId"],
+    "video_id": ["video_id", "videoId", "id", "item_id", "itemId", "pinId", "node_id"],
     "author": [
         "author", "username", "ownerUsername", "profileName", "channelName",
-        "authorMeta.name", "pinner.username", "pinnerUsername", "creator.username", "creator.name",
+        "authorMeta.name", "pinner.username", "pinnerUsername", "pinner_username",
+        "creator.username", "creator.name", "creator_username",
         "channel.username", "channel.name",
     ],
     "caption": ["caption", "text", "description", "title", "video_description"],
@@ -31,12 +32,12 @@ COMMON_KEYS = {
         "views", "playCount", "videoPlayCount", "videoViewCount", "view_count",
         "viewCount", "impressions",
     ],
-    "likes": ["likes", "likesCount", "diggCount", "like_count", "likeCount", "reactions"],
-    "comments": ["comments", "commentsCount", "commentCount", "comment_count"],
-    "shares": ["shares", "sharesCount", "shareCount", "share_count", "reposts", "repinCount"],
+    "likes": ["likes", "likesCount", "diggCount", "like_count", "likeCount", "reactions", "reactions_count"],
+    "comments": ["comments", "commentsCount", "commentCount", "comment_count", "comments_count"],
+    "shares": ["shares", "sharesCount", "shareCount", "share_count", "reposts", "repinCount", "repins_count"],
     "saves": [
         "saves", "saveCount", "savesCount", "collectCount", "bookmarks", "bookmarkCount",
-        "favorites_count", "favourites_count", "save_count",
+        "favorites_count", "favourites_count", "save_count", "saves_count",
     ],
     "followers": [
         "followers", "authorMeta.fans", "follower_count", "followersCount",
@@ -314,50 +315,78 @@ def _default_apify_terms(keywords: dict[str, Any]) -> list[str]:
     return out[:6]
 
 
+def _watchlist_handles(brands: dict[str, Any], platform: str) -> list[str]:
+    handles: list[str] = []
+    for entries in (brands.get("regions") or {}).values():
+        for entry in entries or []:
+            handle = str(((entry.get("handles") or {}).get(platform)) or "").strip().lstrip("@")
+            if handle and handle not in handles:
+                handles.append(handle)
+    return handles
+
+
 def _actor_input_for_platform(
     platform: str,
     start: date,
     end: date,
     terms: list[str],
+    brands: dict[str, Any],
 ) -> dict[str, Any]:
-    raw_per_query = os.environ.get("APIFY_RESULTS_PER_QUERY", "").strip() or "10"
+    raw_per_query = os.environ.get("APIFY_RESULTS_PER_QUERY", "").strip() or "12"
     per_query = max(1, int(raw_per_query))
+    handles = _watchlist_handles(brands, platform)
+
+    hashtag_terms = []
+    for x in terms:
+        tag = x.replace("#", "").replace(" ", "")
+        if tag and tag not in hashtag_terms:
+            hashtag_terms.append(tag)
 
     if platform == "instagram":
-        # The official Apify hashtag actor accepts hashtags/keywords and returns
-        # reels with likes, comments, shares, plays, timestamps and media URLs.
-        instagram_terms = [
-            x.replace("#", "").replace(" ", "")
-            for x in terms
-            if x.replace("#", "").replace(" ", "")
-        ]
+        # Use newest-first profile + hashtag inputs and let our exact date-window
+        # filter enforce Tuesday-Sunday. This is more reliable than only asking
+        # Instagram for generic "top" hashtag results.
+        direct_inputs = handles + [f"#{tag}" for tag in hashtag_terms]
         return {
-            "hashtags": instagram_terms,
-            "resultsType": "reels",
-            "resultsLimit": per_query,
+            "directUrls": direct_inputs,
+            "resultsType": "posts",
+            "resultsLimit": max(12, per_query),
+            "onlyPostsNewerThan": start.isoformat(),
+            "skipPinnedPosts": True,
         }
 
     if platform == "tiktok":
-        # Search only videos and bias toward the latest week. Our own date-window
-        # filter still performs the final Tuesday-Sunday cutoff.
+        # Combine brand profiles, hashtags, and keyword discovery in one run.
+        # PAST_MONTH is intentionally wider than the final weekly window so the
+        # exact Tuesday-Sunday filter still has enough candidates.
         return {
+            "profiles": handles,
+            "profileScrapeSections": ["videos"],
+            "profileSorting": "latest",
+            "excludePinnedPosts": True,
+            "oldestPostDateUnified": start.isoformat(),
+            "newestPostDate": end.isoformat(),
+            "hashtags": hashtag_terms,
             "searchQueries": terms,
             "searchSection": "/video",
             "videoSearchSorting": "LATEST",
-            "videoSearchDateFilter": "PAST_WEEK",
-            "resultsPerPage": per_query,
+            "videoSearchDateFilter": "PAST_MONTH",
+            "resultsPerPage": max(12, per_query),
             "shouldDownloadVideos": False,
             "shouldDownloadCovers": False,
             "shouldDownloadSubtitles": False,
             "scrapeRelatedVideos": False,
-            "proxyCountryCode": "None",
         }
 
     if platform == "pinterest":
-        # Pinterest search exposes public pins. maxItems is a run-level cap.
+        # Full pin records with clean created_at + engagement fields.
+        # A larger candidate pool is needed because Pinterest search is relevance
+        # oriented; the weekly filter is applied after collection.
+        pinterest_terms = terms[:4]
         return {
-            "searchQueries": terms,
-            "maxItems": min(500, per_query * len(terms)),
+            "searchQueries": pinterest_terms,
+            "resultsPerQuery": max(30, per_query * 3),
+            "country": "US",
         }
 
     return {}
@@ -377,11 +406,13 @@ def collect_apify(
         )
 
     defaults = {
-        "instagram": "apify/instagram-hashtag-scraper",
+        "instagram": "calm_builder/instagram-scraper",
         "tiktok": "clockworks/tiktok-scraper",
-        "pinterest": "crawloop/pinterest-scraper",
+        "pinterest": "scrapeberry/pinterest-search-scraper",
     }
     terms = _default_apify_terms(keywords)
+    raw_per_query = os.environ.get("APIFY_RESULTS_PER_QUERY", "").strip() or "12"
+    per_query = max(1, int(raw_per_query))
     all_items: list[dict[str, Any]] = []
     failures: list[str] = []
 
@@ -400,10 +431,23 @@ def collect_apify(
                     f"APIFY_{platform.upper()}_INPUT is not valid JSON"
                 ) from exc
         else:
-            actor_input = _actor_input_for_platform(platform, start, end, terms)
+            actor_input = _actor_input_for_platform(platform, start, end, terms, brands)
 
         try:
             payload = _apify_run(actor, token, actor_input)
+
+            if platform == "instagram":
+                profile_handles = _watchlist_handles(brands, "instagram")
+                if profile_handles:
+                    reels_input = {
+                        "directUrls": profile_handles,
+                        "resultsType": "reels",
+                        "resultsLimit": max(8, per_query),
+                        "onlyPostsNewerThan": start.isoformat(),
+                        "skipPinnedPosts": True,
+                    }
+                    reels_payload = _apify_run(actor, token, reels_input)
+                    payload.extend(reels_payload)
 
             # TikTok search can occasionally return an empty dataset because of
             # platform-side bot detection/session variance. Use a pay-per-result
@@ -416,7 +460,8 @@ def collect_apify(
                 ).strip()
                 fallback_input = {
                     "keywords": terms,
-                    "maxItems": min(30, per_query * len(terms)),
+                    "maxItems": min(80, max(40, per_query * len(terms))),
+                    "maxItemsPerKeyword": max(8, per_query),
                     "sortType": "DATE_POSTED",
                     "includeSearchKeywords": True,
                 }
@@ -452,5 +497,20 @@ def collect_apify(
     if failures:
         print("WARNING: partial Apify collection: " + " | ".join(failures))
 
-    return all_items
+    deduped: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for item in all_items:
+        key = str(item.get("url") or item.get("video_id") or "").strip()
+        if not key:
+            key = json.dumps(
+                [item.get("platform"), item.get("author"), item.get("posted_at"), item.get("caption")],
+                ensure_ascii=False,
+            )
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(item)
+
+    print(f"Apify combined: raw-normalized={len(all_items)}, deduped={len(deduped)}")
+    return deduped
 
