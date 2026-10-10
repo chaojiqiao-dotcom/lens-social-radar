@@ -12,18 +12,19 @@ from .utils import load_json, safe_num
 
 
 COMMON_KEYS = {
-    "platform": ["platform", "source"],
-    "url": ["url", "share_url", "shareUrl", "webVideoUrl", "postUrl", "pinUrl", "canonicalUrl"],
+    "platform": ["platform"],
+    "url": ["url", "share_url", "shareUrl", "webVideoUrl", "postUrl", "postPage", "pinUrl", "canonicalUrl"],
     "mobile_url": ["mobile_url", "mobileUrl", "appUrl", "deepLink", "deeplink"],
     "embed_url": ["embed_url", "embedUrl", "embed_link", "embedLink"],
     "video_id": ["video_id", "videoId", "id", "item_id", "itemId", "pinId"],
     "author": [
         "author", "username", "ownerUsername", "profileName", "channelName",
-        "authorMeta.name", "pinner.username", "creator.username", "creator.name",
+        "authorMeta.name", "pinner.username", "pinnerUsername", "creator.username", "creator.name",
+        "channel.username", "channel.name",
     ],
     "caption": ["caption", "text", "description", "title", "video_description"],
     "posted_at": [
-        "posted_at", "createTimeISO", "timestamp", "date", "created_at", "create_time",
+        "posted_at", "createTimeISO", "createTime", "timestamp", "date", "created_at", "create_time",
         "createdAt", "publishedAt", "published_at",
     ],
     "views": [
@@ -34,17 +35,18 @@ COMMON_KEYS = {
     "comments": ["comments", "commentsCount", "commentCount", "comment_count"],
     "shares": ["shares", "sharesCount", "shareCount", "share_count", "reposts", "repinCount"],
     "saves": [
-        "saves", "saveCount", "savesCount", "collectCount", "favorites_count",
-        "favourites_count", "save_count",
+        "saves", "saveCount", "savesCount", "collectCount", "bookmarks", "bookmarkCount",
+        "favorites_count", "favourites_count", "save_count",
     ],
     "followers": [
         "followers", "authorMeta.fans", "follower_count", "followersCount",
-        "pinner.followers", "creator.followers",
+        "pinner.followers", "creator.followers", "channel.followers",
     ],
     "thumbnail": [
         "thumbnail", "thumbnail_url", "thumbnailUrl", "cover_image_url", "coverImageUrl",
         "displayUrl", "cover", "image", "image_url", "imageUrl", "firstFrame",
         "first_frame", "videoMeta.coverUrl", "videoMeta.originalCoverUrl",
+        "video.cover", "video.thumbnail",
     ],
     "local_video": ["local_video", "localVideo", "downloadedVideo", "video_path", "videoUrl"],
     "access_mode": ["access_mode", "accessMode", "playback_mode"],
@@ -402,6 +404,33 @@ def collect_apify(
 
         try:
             payload = _apify_run(actor, token, actor_input)
+
+            # TikTok search can occasionally return an empty dataset because of
+            # platform-side bot detection/session variance. Use a pay-per-result
+            # keyword-search Actor as a low-cost fallback instead of dropping the
+            # platform from the weekly report.
+            if platform == "tiktok" and not payload:
+                fallback_actor = os.environ.get(
+                    "APIFY_TIKTOK_FALLBACK_ACTOR",
+                    "xmolodtsov/tiktok-search-scraper",
+                ).strip()
+                fallback_input = {
+                    "keywords": terms,
+                    "maxItems": min(30, per_query * len(terms)),
+                    "sortType": "DATE_POSTED",
+                    "includeSearchKeywords": True,
+                }
+                print(
+                    f"Apify tiktok primary returned 0; "
+                    f"trying fallback actor={fallback_actor}"
+                )
+                payload = _apify_run(
+                    fallback_actor,
+                    token,
+                    fallback_input,
+                )
+                actor = fallback_actor
+
             normalized = [
                 normalize(x, platform)
                 for x in payload
