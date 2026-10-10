@@ -234,9 +234,11 @@ def build() -> Path:
     cache_dashboard_thumbnails(ranked)
 
     date_range = f"{start.isoformat()} 至 {end.isoformat()}"
-    analysis = ai_analysis(ranked, date_range)
+    eligible_ranked = [x for x in ranked if x.get("ranking_eligible")]
+    analysis = ai_analysis(eligible_ranked, date_range)
 
     platform_counts = Counter(str(x.get("platform")) for x in ranked)
+    eligible_platform_counts = Counter(str(x.get("platform")) for x in eligible_ranked)
     region_counts = Counter(str(x.get("region")) for x in ranked)
     type_counts = Counter(str(x.get("content_type") or "unknown") for x in ranked)
     brands_count = len({str(x.get("brand")) for x in ranked if x.get("brand")})
@@ -249,13 +251,15 @@ def build() -> Path:
             "generated_at": datetime.now(timezone.utc).isoformat(),
             "collection_mode": mode,
             "is_demo": mode == "demo",
-            "ranking_method": "Within-platform percentile normalization: reach 35%, engagement 25%, share/save 20%, velocity 10%, relevance 10%",
+            "ranking_method": "Platform-specific heat ranking. Missing metrics remain missing; tied values share the same percentile; only data-qualified posts can enter platform TOP10 / overall TOP3. Creative/video-analysis score is separate and not yet included in heat ranking.",
             "leaderboard_layout": "Instagram TOP10 + TikTok TOP10 + Pinterest TOP10 + cross-platform TOP3",
         },
         "stats": {
             "posts": len(ranked),
+            "ranking_eligible": len(eligible_ranked),
             "brands": brands_count,
             "platforms": dict(platform_counts),
+            "eligible_platforms": dict(eligible_platform_counts),
             "regions": dict(region_counts),
             "content_types": dict(type_counts),
         },
