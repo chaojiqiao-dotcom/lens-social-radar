@@ -33,7 +33,7 @@ def parse_args() -> argparse.Namespace:
 def in_window(item: dict, start: date, end: date) -> bool:
     raw_value = item.get("posted_at")
     if raw_value in (None, ""):
-        return True
+        return False
 
     # Numeric Unix timestamps occasionally arrive from TikTok-style feeds.
     if isinstance(raw_value, (int, float)):
