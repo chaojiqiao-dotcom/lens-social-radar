@@ -30,7 +30,7 @@ function heatText(x){
   return value === null || value === undefined ? '—' : Number(value).toFixed(1);
 }
 function confidenceText(x){ return x?.data_confidence === null || x?.data_confidence === undefined ? '—' : `${Number(x.data_confidence).toFixed(0)}%`; }
-function platformLabel(p){ return ({instagram:'Instagram',tiktok:'TikTok',pinterest:'Pinterest'})[p] || p; }
+function platformLabel(p){ return ({instagram:'Instagram',tiktok:'TikTok'})[p] || p; }
 function arr(v){ return Array.isArray(v) ? v : (v ? [v] : []); }
 function normalizeText(v=''){ return String(v).toLowerCase().normalize('NFKC').trim(); }
 
@@ -178,7 +178,6 @@ function searchAliases(x){
   if(type === 'pin') aliases.push('图片','pin','pinterest图片');
   if(x.platform === 'instagram') aliases.push('ins','ig','instagram','reels');
   if(x.platform === 'tiktok') aliases.push('tiktok','tt','抖音海外版');
-  if(x.platform === 'pinterest') aliases.push('pinterest','pin');
   return aliases;
 }
 
