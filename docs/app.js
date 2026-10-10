@@ -8,21 +8,38 @@ function esc(v='') {
   return String(v).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 }
 function n(v){ return Number(v || 0); }
-function pct(v){ return `${Number(v || 0).toFixed(2)}%`; }
+function pct(v){
+  if(v === null || v === undefined || Number.isNaN(Number(v))) return '—';
+  return `${Number(v).toFixed(2)}%`;
+}
+function metricKnown(x,key){
+  const availability = x?.metric_availability;
+  if(availability && Object.prototype.hasOwnProperty.call(availability,key)) return Boolean(availability[key]);
+  return x?.[key] !== null && x?.[key] !== undefined;
+}
+function metricText(x,key){ return metricKnown(x,key) ? fmt.format(n(x[key])) : '—'; }
+function shareSaveText(x){
+  const hasShare = metricKnown(x,'shares');
+  const hasSave = metricKnown(x,'saves');
+  if(!hasShare && !hasSave) return '—';
+  return fmt.format((hasShare?n(x.shares):0)+(hasSave?n(x.saves):0));
+}
+function heatText(x){ return x?.heat_score === null || x?.heat_score === undefined ? '—' : Number(x.heat_score).toFixed(1); }
+function confidenceText(x){ return x?.data_confidence === null || x?.data_confidence === undefined ? '—' : `${Number(x.data_confidence).toFixed(0)}%`; }
 function platformLabel(p){ return ({instagram:'Instagram',tiktok:'TikTok',pinterest:'Pinterest'})[p] || p; }
 function arr(v){ return Array.isArray(v) ? v : (v ? [v] : []); }
 function normalizeText(v=''){ return String(v).toLowerCase().normalize('NFKC').trim(); }
 
 function renderKpis(data){
   const posts = data.posts || [];
-  const views = posts.reduce((a,x)=>a+n(x.views),0);
-  const saves = posts.reduce((a,x)=>a+n(x.saves),0);
-  const top = posts[0] || {};
+  const eligible = posts.filter(x=>x.ranking_eligible);
+  const views = eligible.reduce((a,x)=>a+(metricKnown(x,'views')?n(x.views):0),0);
+  const top = eligible[0] || {};
   const cards = [
-    ['采集内容', fmt.format(data.stats?.posts || 0), '本周有效帖子'],
-    ['监测品牌', fmt.format(data.stats?.brands || 0), '跨地区品牌/账号'],
-    ['样本触达', fmt.format(views), '播放或曝光合计'],
-    ['收藏信号', fmt.format(saves), `总榜 TOP 1：${esc(top.brand || '—')}`],
+    ['采集内容', fmt.format(data.stats?.posts || posts.length), '本周进入案例库'],
+    ['可入热榜', fmt.format(data.stats?.ranking_eligible || eligible.length), '通过数据质量门槛'],
+    ['有效触达', fmt.format(views), '仅统计已获取播放/曝光的数据'],
+    ['当前总榜 TOP 1', esc(top.brand || '—'), top.platform ? `${platformLabel(top.platform)} · 热度 ${heatText(top)}` : '等待有效样本'],
   ];
   document.querySelector('#kpis').innerHTML = cards.map(([a,b,c])=>`<article class="kpi"><div class="kpi-label">${a}</div><div class="kpi-value">${b}</div><div class="kpi-sub">${c}</div></article>`).join('');
 }
@@ -61,7 +78,7 @@ function coverMarkup(x, rankLabel, compact=false){
 }
 
 function platformPosts(platform){
-  const rows = (dataset.posts || []).filter(x=>x.platform===platform);
+  const rows = (dataset.posts || []).filter(x=>x.platform===platform && x.ranking_eligible);
   rows.sort((a,b)=>{
     const ar = n(a.platform_rank) || 9999;
     const br = n(b.platform_rank) || 9999;
@@ -75,19 +92,22 @@ function renderPlatformBoards(){
   const platforms = ['instagram','tiktok','pinterest'];
   document.getElementById('platformBoards').innerHTML = platforms.map(platform=>{
     const posts = platformPosts(platform);
+    const collected = (dataset.posts || []).filter(x=>x.platform===platform).length;
+    const excluded = Math.max(0,collected-posts.length);
     const cards = posts.map((x,i)=>{
       const rank = n(x.platform_rank) || i+1;
       return `<article class="rank-card">
         ${coverMarkup(x, `#${rank}`)}
         <div class="rank-card-body">
-          <div class="rank-card-top"><span class="platform-pill">${esc(platformLabel(platform))}</span><span class="score-number">${n(x.score).toFixed(1)} 分</span></div>
+          <div class="rank-card-top"><span class="platform-pill">${esc(platformLabel(platform))}</span><span class="score-number">热度 ${heatText(x)}</span></div>
           <h3>${esc(x.brand || 'Unknown')}</h3>
           <p class="card-caption">${esc(x.caption || '—')}</p>
           <div class="card-author">${esc(x.author || '')} · ${esc(x.region || '')}</div>
+          <div class="data-quality-row"><span>数据完整度 ${confidenceText(x)}</span><span>可入榜</span></div>
           <div class="card-metrics">
-            <span><b>${fmt.format(n(x.views))}</b> 触达</span>
+            <span><b>${metricText(x,'views')}</b> 触达</span>
             <span><b>${pct(x.engagement_rate)}</b> 互动率</span>
-            <span><b>${fmt.format(n(x.shares)+n(x.saves))}</b> 分享+收藏</span>
+            <span><b>${shareSaveText(x)}</b> 分享+收藏</span>
           </div>
         </div>
       </article>`;
@@ -95,7 +115,7 @@ function renderPlatformBoards(){
     return `<section class="platform-board platform-board-${platform}">
       <div class="platform-board-head">
         <div><div class="eyebrow">${esc(platformLabel(platform).toUpperCase())} WEEKLY</div><h3>${esc(platformLabel(platform))} TOP 10</h3></div>
-        <div class="board-count">${posts.length} / 10</div>
+        <div class="board-count">${posts.length} / 10${excluded ? ` · ${excluded} 条仅入案例库` : ''}</div>
       </div>
       <div class="rank-gallery">${cards || '<div class="empty-state">本周暂无有效数据。</div>'}</div>
     </section>`;
@@ -103,7 +123,7 @@ function renderPlatformBoards(){
 }
 
 function renderPodium(){
-  const top = (dataset.posts || []).slice(0,3);
+  const top = (dataset.posts || []).filter(x=>x.ranking_eligible).slice(0,3);
   document.querySelector('#podium').innerHTML = top.map((x,i)=>{
     const a = getTopAnalysis(x.rank);
     const link = x.url ? `<a class="winner-link" target="_blank" rel="noopener noreferrer" href="${esc(x.url)}">打开原帖 ↗</a>` : '';
@@ -114,9 +134,9 @@ function renderPodium(){
         <h3>${esc(x.brand)}</h3>
         <p class="headline">${esc(a.headline || x.caption || '')}</p>
         <div class="mini-metrics">
-          <div class="mini-metric"><label>综合分</label><strong>${n(x.score).toFixed(1)}</strong></div>
-          <div class="mini-metric"><label>触达</label><strong>${fmt.format(n(x.views))}</strong></div>
-          <div class="mini-metric"><label>互动率</label><strong>${pct(x.engagement_rate)}</strong></div>
+          <div class="mini-metric"><label>平台热度分</label><strong>${heatText(x)}</strong></div>
+          <div class="mini-metric"><label>数据完整度</label><strong>${confidenceText(x)}</strong></div>
+          <div class="mini-metric"><label>触达</label><strong>${metricText(x,'views')}</strong></div>
         </div>
         <div class="deep">
           <div class="deep-block"><b>为什么火</b><p>${esc(a.why_it_won || '—')}</p></div>
@@ -196,7 +216,7 @@ function relevanceForSearch(x, query){
     else if(tags.some(tag=>tag.includes(t))) score += 9;
     if(primary.includes(t)) score += 5;
   }
-  score += Math.min(5, n(x.score)/20);
+  score += x.ranking_eligible ? Math.min(5, n(x.heat_score)/20) : 0;
   return score;
 }
 
@@ -246,7 +266,7 @@ function renderSearchResults(query){
         <p>${esc(x.caption || '—')}</p>
         <div class="search-result-author">${esc(x.author || '')} · ${esc(x.region || '')}</div>
         <div class="search-tags">${(tags.length?tags:arr(x.search_tags).slice(0,4)).map(t=>`<span>${esc(t)}</span>`).join('')}</div>
-        <div class="search-result-metrics"><span>${fmt.format(n(x.views))} 触达</span><span>${pct(x.engagement_rate)} 互动</span><span>${n(x.score).toFixed(1)} 分</span></div>
+        <div class="search-result-metrics"><span>${metricText(x,'views')} 触达</span><span>${pct(x.engagement_rate)} 互动</span><span>${x.ranking_eligible ? `热度 ${heatText(x)}` : '仅案例库'}</span></div>
       </div>
     </article>`;
   }).join('')}</div>${total>24?`<div class="search-more">当前先展示相关度最高的 24 条，共 ${total} 条匹配。</div>`:''}`;
