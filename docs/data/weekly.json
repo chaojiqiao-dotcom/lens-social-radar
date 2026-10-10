@@ -3,7 +3,7 @@
     "title": "Lens Social Radar",
     "date_start": "2026-09-29",
     "date_end": "2026-10-04",
-    "generated_at": "2026-10-10T01:36:19.397993+00:00",
+    "generated_at": "2026-10-10T01:45:30.452606+00:00",
     "collection_mode": "demo",
     "is_demo": true,
     "ranking_method": "Within-platform percentile normalization: reach 35%, engagement 25%, share/save 20%, velocity 10%, relevance 10%",
