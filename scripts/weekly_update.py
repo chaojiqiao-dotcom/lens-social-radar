@@ -10,6 +10,7 @@ import urllib.parse
 import urllib.request
 from collections import Counter
 from datetime import date, datetime, time, timezone
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -30,13 +31,31 @@ def parse_args() -> argparse.Namespace:
 
 
 def in_window(item: dict, start: date, end: date) -> bool:
-    raw = str(item.get("posted_at") or "")
-    if not raw:
+    raw_value = item.get("posted_at")
+    if raw_value in (None, ""):
         return True
+
+    # Numeric Unix timestamps occasionally arrive from TikTok-style feeds.
+    if isinstance(raw_value, (int, float)):
+        try:
+            d = datetime.fromtimestamp(float(raw_value), tz=timezone.utc).date()
+            return start <= d <= end
+        except (OverflowError, OSError, ValueError):
+            return True
+
+    raw = str(raw_value).strip()
     try:
         d = datetime.fromisoformat(raw.replace("Z", "+00:00")).date()
         return start <= d <= end
     except ValueError:
+        pass
+
+    # Pinterest commonly returns RFC 2822 dates such as:
+    # "Fri, 28 Aug 2026 03:05:27 +0000".
+    try:
+        d = parsedate_to_datetime(raw).date()
+        return start <= d <= end
+    except (TypeError, ValueError, OverflowError):
         return True
 
 
