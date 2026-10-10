@@ -1,0 +1,38 @@
+name: Lens Social Radar Code Check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "scripts/**"
+      - "docs/app.js"
+      - ".github/workflows/code-check.yml"
+  pull_request:
+    paths:
+      - "src/**"
+      - "scripts/**"
+      - "docs/app.js"
+
+permissions:
+  contents: read
+
+jobs:
+  syntax-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Check Python syntax
+        run: |
+          python -m py_compile scripts/weekly_update.py src/*.py
+
+      - name: Check JavaScript syntax
+        run: |
+          node --check docs/app.js
