@@ -49,21 +49,25 @@ def _candidate_sort(item: dict[str, Any]) -> tuple[float, float, float]:
 
 
 def select_creative_candidates(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    max_total = max(1, int(os.environ.get("CREATIVE_MAX_VIDEOS", "12") or "12"))
-    max_per_platform = max(1, int(os.environ.get("CREATIVE_MAX_PER_PLATFORM", "8") or "8"))
-    videos = [x for x in items if _is_video(x) and x.get("url")]
-    videos.sort(key=_candidate_sort, reverse=True)
-    selected: list[dict[str, Any]] = []
-    counts = {"instagram": 0, "tiktok": 0}
-    for item in videos:
-        platform = str(item.get("platform") or "").lower()
-        if platform not in counts or counts[platform] >= max_per_platform:
-            continue
-        selected.append(item)
-        counts[platform] += 1
-        if len(selected) >= max_total:
-            break
-    return selected
+    """Analyze only the overall Heat Score #1 post.
+
+    If overall #1 is not a video (or has no usable URL), Creative Analysis is
+    skipped for that week instead of silently analyzing another post.
+    """
+    overall_top = next(
+        (
+            x for x in items
+            if int(safe_num(x.get("rank"))) == 1
+        ),
+        None,
+    )
+    if not overall_top:
+        return []
+    if not _is_video(overall_top):
+        return []
+    if not overall_top.get("url"):
+        return []
+    return [overall_top]
 
 
 def _nested(raw: dict[str, Any], dotted: str) -> Any:
