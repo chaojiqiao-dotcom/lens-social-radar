@@ -126,6 +126,88 @@ function renderPlatformBoards(){
   }).join('');
 }
 
+function creativePicks(){
+  return (dataset.posts || [])
+    .filter(x=>x.creative_analysis_status === 'complete' && x.creative_score !== null && x.creative_score !== undefined)
+    .sort((a,b)=>{
+      const ar=n(a.editors_pick_rank)||9999;
+      const br=n(b.editors_pick_rank)||9999;
+      if(ar!==br) return ar-br;
+      return n(b.creative_score)-n(a.creative_score);
+    })
+    .slice(0,10);
+}
+
+function creativeScoreText(x){
+  return x?.creative_score === null || x?.creative_score === undefined ? '—' : Number(x.creative_score).toFixed(1);
+}
+
+function renderEditorsPicks(){
+  const wrap=document.getElementById('editorsPicks');
+  const statusEl=document.getElementById('creativeStatus');
+  if(!wrap || !statusEl) return;
+
+  const status=dataset.creative_analysis || {};
+  const picks=creativePicks();
+
+  if(!picks.length){
+    let title='AI 视频分析尚未开启';
+    let body='添加 OPENAI_API_KEY 并启用 CREATIVE_ANALYSIS_ENABLED 后，系统会自动抽取视频关键帧、估算剪切点并生成 Creative Score。';
+    if(status.enabled && status.api_key_present){
+      title='本周暂时没有成功完成的视频分析';
+      body=`尝试分析 ${n(status.attempted)} 条，成功 ${n(status.analyzed)} 条。可能是视频源无法访问或本周候选视频不足。`;
+    } else if(status.enabled && !status.api_key_present){
+      title='已启用 Creative Analysis，但缺少 OpenAI API Key';
+      body='请在 GitHub Actions Secrets 中添加 OPENAI_API_KEY。';
+    }
+    statusEl.innerHTML=`<div class="creative-empty"><strong>${esc(title)}</strong><span>${esc(body)}</span></div>`;
+    wrap.innerHTML='';
+    return;
+  }
+
+  statusEl.innerHTML=`<div class="creative-run-note"><span>本周已分析 <b>${n(status.analyzed)}</b> 条视频</span><span>Editor's Picks 展示 ${picks.length} 条 · Creative Score 与 Heat Score 完全分开</span></div>`;
+
+  wrap.innerHTML=picks.map((x,i)=>{
+    const a=x.video_analysis || {};
+    const rank=n(x.editors_pick_rank)||i+1;
+    const duration=a.duration_seconds ? `${Number(a.duration_seconds).toFixed(1)}s` : '—';
+    const cuts=a.estimated_cut_count===0 ? '0' : (a.estimated_cut_count ?? '—');
+    const avg=a.estimated_average_shot_seconds ? `${Number(a.estimated_average_shot_seconds).toFixed(2)}s` : '—';
+    const link=x.url ? `<a class="editor-link" href="${esc(x.url)}" target="_blank" rel="noopener noreferrer">查看原帖 ↗</a>` : '';
+    const tags=[...arr(x.hook_tags),...arr(x.shooting_tags),...arr(x.editing_tags)].filter(Boolean);
+    const uniqueTags=[...new Set(tags)].slice(0,6);
+    return `<article class="editor-card">
+      <div class="editor-cover">${coverMarkup(x,`Editor's #${rank}`,true)}</div>
+      <div class="editor-body">
+        <div class="editor-head">
+          <div>
+            <span class="platform-pill">${esc(platformLabel(x.platform))}</span>
+            <h3>${esc(x.brand || x.author || 'Unknown')}</h3>
+          </div>
+          <div class="creative-score"><span>Creative</span><strong>${creativeScoreText(x)}</strong></div>
+        </div>
+        <p class="editor-one-line">${esc(a.one_line || '—')}</p>
+        <div class="editor-metrics">
+          <span><b>${heatText(x)}</b> 热度</span>
+          <span><b>${duration}</b> 时长</span>
+          <span><b>${cuts}</b> 估算切点</span>
+          <span><b>${avg}</b> 平均镜头</span>
+        </div>
+        <div class="editor-tags">${uniqueTags.map(t=>`<span>${esc(t)}</span>`).join('')}</div>
+        <div class="editor-analysis-grid">
+          <div><b>前3秒 / Hook</b><p>${esc(a.hook_analysis || '—')}</p></div>
+          <div><b>拍摄 / 构图</b><p>${esc(a.shooting_analysis || '—')}</p></div>
+          <div><b>剪辑 / 节奏</b><p>${esc(a.editing_analysis || '—')}</p></div>
+          <div><b>平台爆点</b><p>${esc(a.platform_burst_analysis || '—')}</p></div>
+          <div><b>产品展示</b><p>${esc(a.product_display_analysis || '—')}</p></div>
+          <div><b>UYAAI 可复制</b><p>${esc(a.replication_advice || '—')}</p></div>
+        </div>
+        ${link}
+      </div>
+    </article>`;
+  }).join('');
+}
+
 function renderPodium(){
   const top = (dataset.posts || []).filter(isRankEligible).slice(0,3);
   document.querySelector('#podium').innerHTML = top.map((x,i)=>{
@@ -187,7 +269,17 @@ function searchableParts(x){
   return {
     primary: [x.brand,x.author,x.caption,x.platform,platformLabel(x.platform),x.region,x.content_type].filter(Boolean),
     tags,
-    other: [x.media_notes,x.week_start,x.week_end,...searchAliases(x)].filter(Boolean),
+    other: [
+      x.media_notes,x.week_start,x.week_end,
+      x.video_analysis?.one_line,
+      x.video_analysis?.hook_analysis,
+      x.video_analysis?.shooting_analysis,
+      x.video_analysis?.editing_analysis,
+      x.video_analysis?.platform_burst_analysis,
+      x.video_analysis?.product_display_analysis,
+      x.video_analysis?.replication_advice,
+      ...searchAliases(x)
+    ].filter(Boolean),
   };
 }
 
@@ -269,7 +361,7 @@ function renderSearchResults(query){
         <p>${esc(x.caption || '—')}</p>
         <div class="search-result-author">${esc(x.author || '')} · ${esc(x.region || '')}</div>
         <div class="search-tags">${(tags.length?tags:arr(x.search_tags).slice(0,4)).map(t=>`<span>${esc(t)}</span>`).join('')}</div>
-        <div class="search-result-metrics"><span>${metricText(x,'views')} 触达</span><span>${pct(x.engagement_rate)} 互动</span><span>${isRankEligible(x) ? `热度 ${heatText(x)}` : '仅案例库'}</span></div>
+        <div class="search-result-metrics"><span>${metricText(x,'views')} 触达</span><span>${x.creative_score!=null ? `Creative ${creativeScoreText(x)}` : pct(x.engagement_rate)}</span><span>${isRankEligible(x) ? `热度 ${heatText(x)}` : '仅案例库'}</span></div>
       </div>
     </article>`;
   }).join('')}</div>${total>24?`<div class="search-more">当前先展示相关度最高的 24 条，共 ${total} 条匹配。</div>`:''}`;
@@ -343,6 +435,7 @@ async function boot(){
     renderKpis(dataset);
     renderSignals();
     renderPlatformBoards();
+    renderEditorsPicks();
     renderPodium();
     renderBars('regionBars', dataset.stats?.regions);
     renderBars('typeBars', dataset.stats?.content_types);
