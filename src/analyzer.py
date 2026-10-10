@@ -33,7 +33,7 @@ def fallback_analysis(items: list[dict[str, Any]]) -> dict[str, Any]:
         "weekly_summary": f"本周样本共 {len(items)} 条，内容主要来自 {', '.join(k for k,_ in platforms.most_common())}。高分内容普遍强调眼部近景、佩戴对比、妆容适配或可保存的信息设计。",
         "signals": [
             "眼部超近景与单眼对比仍是最直接的视觉钩子",
-            "Pinterest 更偏收藏价值；TikTok 更偏速度和讨论；Instagram 更适合审美与品牌资产沉淀",
+            "TikTok 更偏速度、讨论和复播；Instagram 更适合审美表达、品牌资产与保存分享",
             "不同地区应分别观察妆容审美、自然度偏好与语言本地化"
         ],
         "top3_analysis": top3,
