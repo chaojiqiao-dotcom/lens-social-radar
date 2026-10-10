@@ -225,6 +225,7 @@ def build() -> Path:
         raise SystemExit(f"Unsupported mode: {mode}")
 
     items = assign_brand_region(raw_items, brands)
+    items = [x for x in items if str(x.get("platform") or "").lower() in {"instagram", "tiktok"}]
     items = [x for x in items if in_window(x, start, end)]
     as_of = datetime.combine(end, time(23, 59, 59), tzinfo=timezone.utc)
     ranked = score_items(items, as_of=as_of)
