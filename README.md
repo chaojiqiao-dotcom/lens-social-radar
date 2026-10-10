@@ -1,10 +1,9 @@
 # Lens Social Radar v1.2
 
-美瞳 / 眼睛类社媒周报仪表盘。每周一统计上一周 **周二至周日** 的 Instagram、TikTok、Pinterest 内容，并输出：
+美瞳 / 眼睛类社媒周报仪表盘。每周一统计上一周 **周二至周日** 的 Instagram、TikTok 内容，并输出：
 
 - Instagram TOP 10
 - TikTok TOP 10
-- Pinterest TOP 10
 - 三个平台归一化后的综合总榜 TOP 3 + 深度分析
 - 东南亚 / 欧美 / 中东地区信号
 - 内容类型趋势
@@ -13,12 +12,12 @@
 
 1. 首页新增“社媒案例库”全局搜索。
 2. 可搜索品牌、账号、平台、地区、美瞳颜色、画面元素、拍摄方式、剪辑手法、Hook、内容形式等关键词。
-3. 支持平台二次筛选：全部 / Instagram / TikTok / Pinterest。
+3. 支持平台二次筛选：全部 / Instagram / TikTok。
 4. 支持快捷搜索词，例如：眼部特写、大脸近景、单眼对比、自然光、Jump Cut、卡点、GRWM、产品平铺。
 5. 搜索结果按“关键词相关度 + 内容综合分”排序，并显示匹配创意标签。
 6. 每周更新时同步维护 `docs/data/archive.json` 历史案例索引；真实采集模式会持续累积并去重，DEMO 模式只保留当前演示周，避免生成假历史。
 7. 数据模型增加 `search_tags`、`visual_tags`、`shooting_tags`、`editing_tags`、`hook_tags`、`hashtags`，为后续视觉 AI 自动标注和详情分析页做准备。
-8. 保留 v1.1 的 Instagram / TikTok / Pinterest TOP 10、跨平台 TOP 3、封面缓存和 TikTok 展示兼容逻辑。
+8. 保留 v1.1 的 Instagram / TikTok TOP 10、跨平台 TOP 3、封面缓存和 TikTok 展示兼容逻辑。
 
 ## 快速预览（完全不需要代码）
 
@@ -57,7 +56,7 @@ Windows 如果 `python` 无法识别，可换成 `py`。
 - 增长速度：10%
 - 美瞳 / 眼睛内容相关性：10%
 
-因此 TikTok 不会仅仅因为播放量绝对值更大就自动压过 Instagram / Pinterest。
+因此 TikTok 不会仅仅因为播放量绝对值更大就自动压过 Instagram / 。
 
 ## 推荐真实数据格式
 
@@ -158,7 +157,7 @@ OPENAI_MODEL=gpt-5.6-luna
 
 ## 重要的数据访问边界
 
-不存在一个官方接口，可以让商业工具无条件抓取 Instagram、TikTok、Pinterest 的全部公开内容。生产环境应使用有授权 / 合规的数据源，并遵守平台条款与适用法律。
+不存在一个官方接口，可以让商业工具无条件抓取 Instagram、TikTok 的全部公开内容。生产环境应使用有授权 / 合规的数据源，并遵守平台条款与适用法律。
 
 对于 TikTok，工具的 fallback 逻辑只帮助处理公开数据的封面、链接和展示兼容问题，不用于绕过私密内容、登录墙、年龄限制、地区限制或其他访问控制。
 
