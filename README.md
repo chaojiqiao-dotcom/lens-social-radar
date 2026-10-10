@@ -195,7 +195,7 @@ Creative Score weights:
 - Retention / loop design: 10%
 - Replicability: 10%
 
-When enabled, the weekly job selects a limited candidate set, extracts up to 8 key frames per video, estimates scene cuts and average shot length, sends the frames to the OpenAI Responses API, and writes the analysis back into the weekly dataset. TikTok video-file retrieval is only performed for the selected creative-analysis candidates.
+When enabled, the weekly job analyzes only the overall Heat Score #1 post. If that #1 post is a video, Radar extracts up to 8 key frames, estimates scene cuts and average shot length, sends those frames to the OpenAI Responses API, and writes the analysis back into the weekly dataset. If overall #1 is not a video, Creative Analysis is skipped for that week.
 
 Required GitHub Actions secret:
 
@@ -207,8 +207,6 @@ Required GitHub Actions variable:
 
 Optional variables:
 
-- `CREATIVE_MAX_VIDEOS=12`
-- `CREATIVE_MAX_PER_PLATFORM=8`
 - `OPENAI_CREATIVE_MODEL=gpt-5.6-sol`
 
 If Creative Analysis is disabled or the API key is absent, Heat Score and the normal weekly report still run normally.
