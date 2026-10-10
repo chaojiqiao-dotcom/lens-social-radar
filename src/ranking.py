@@ -141,6 +141,9 @@ def _eligibility(platform: str, item: dict[str, Any], confidence: float) -> tupl
     if not item.get("posted_at"):
         return False, "缺少发布时间"
 
+    if platform == "pinterest":
+        return False, "Pinterest仅用于案例库，不参与热度榜"
+
     if platform == "tiktok":
         if views is None or views <= 0:
             return False, "缺少有效播放量"
