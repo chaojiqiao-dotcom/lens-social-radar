@@ -32,18 +32,10 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install video analysis tools
-        if: ${{ vars.CREATIVE_ANALYSIS_ENABLED == 'true' }}
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y ffmpeg
-
       - name: Build weekly radar data
         env:
           APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          OPENAI_CREATIVE_MODEL: ${{ vars.OPENAI_CREATIVE_MODEL || 'gpt-5.6-sol' }}
-          CREATIVE_ANALYSIS_ENABLED: ${{ vars.CREATIVE_ANALYSIS_ENABLED || 'false' }}
           APIFY_RESULTS_PER_QUERY: ${{ vars.APIFY_RESULTS_PER_QUERY || '5' }}
           MANUAL_MODE: ${{ github.event.inputs.collection_mode }}
           EVENT_NAME: ${{ github.event_name }}
