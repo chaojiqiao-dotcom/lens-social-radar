@@ -44,8 +44,6 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_CREATIVE_MODEL: ${{ vars.OPENAI_CREATIVE_MODEL || 'gpt-5.6-sol' }}
           CREATIVE_ANALYSIS_ENABLED: ${{ vars.CREATIVE_ANALYSIS_ENABLED || 'false' }}
-          CREATIVE_MAX_VIDEOS: ${{ vars.CREATIVE_MAX_VIDEOS || '12' }}
-          CREATIVE_MAX_PER_PLATFORM: ${{ vars.CREATIVE_MAX_PER_PLATFORM || '8' }}
           APIFY_RESULTS_PER_QUERY: ${{ vars.APIFY_RESULTS_PER_QUERY || '5' }}
           MANUAL_MODE: ${{ github.event.inputs.collection_mode }}
           EVENT_NAME: ${{ github.event_name }}
