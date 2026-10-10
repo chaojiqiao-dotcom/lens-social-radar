@@ -151,11 +151,11 @@ function renderEditorsPicks(){
   const picks=creativePicks();
 
   if(!picks.length){
-    let title='AI 视频分析尚未开启';
-    let body='添加 OPENAI_API_KEY 并启用 CREATIVE_ANALYSIS_ENABLED 后，系统会自动抽取视频关键帧、估算剪切点并生成 Creative Score。';
+    let title='总榜 #1 视频分析尚未开启';
+    let body='添加 OPENAI_API_KEY 并启用 CREATIVE_ANALYSIS_ENABLED 后，如果综合总榜 #1 是视频，系统会只分析这一条并生成 Creative Score。';
     if(status.enabled && status.api_key_present){
-      title='本周暂时没有成功完成的视频分析';
-      body=`尝试分析 ${n(status.attempted)} 条，成功 ${n(status.analyzed)} 条。可能是视频源无法访问或本周候选视频不足。`;
+      title='本周没有生成总榜 #1 视频分析';
+      body=`如果总榜 #1 不是视频，系统会自动跳过；如果它是视频，则可能是视频源暂时无法获取。`;
     } else if(status.enabled && !status.api_key_present){
       title='已启用 Creative Analysis，但缺少 OpenAI API Key';
       body='请在 GitHub Actions Secrets 中添加 OPENAI_API_KEY。';
@@ -165,7 +165,7 @@ function renderEditorsPicks(){
     return;
   }
 
-  statusEl.innerHTML=`<div class="creative-run-note"><span>本周已分析 <b>${n(status.analyzed)}</b> 条视频</span><span>Editor's Picks 展示 ${picks.length} 条 · Creative Score 与 Heat Score 完全分开</span></div>`;
+  statusEl.innerHTML=`<div class="creative-run-note"><span>本周已完成总榜 #1 视频分析</span><span>仅分析综合总榜 #1 · Creative Score 与 Heat Score 完全分开</span></div>`;
 
   wrap.innerHTML=picks.map((x,i)=>{
     const a=x.video_analysis || {};
