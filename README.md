@@ -175,38 +175,3 @@ GitHub Actions 配置在：
 .github/workflows/weekly-update.yml
 ```
 
-
-## AI Creative Analysis / Editor's Picks
-
-Radar can optionally analyze selected Instagram/TikTok videos from an editor's perspective.
-
-It keeps two scores separate:
-
-- **Heat Score**: platform performance / engagement.
-- **Creative Score**: editing and shooting reference value. Heat does not affect this score.
-
-Creative Score weights:
-
-- Hook / first 3 seconds: 20%
-- Composition: 15%
-- Shooting execution: 15%
-- Editing rhythm: 20%
-- Product reveal efficiency: 10%
-- Retention / loop design: 10%
-- Replicability: 10%
-
-When enabled, the weekly job analyzes only the overall Heat Score #1 post. If that #1 post is a video, Radar extracts up to 8 key frames, estimates scene cuts and average shot length, sends those frames to the OpenAI Responses API, and writes the analysis back into the weekly dataset. If overall #1 is not a video, Creative Analysis is skipped for that week.
-
-Required GitHub Actions secret:
-
-- `OPENAI_API_KEY`
-
-Required GitHub Actions variable:
-
-- `CREATIVE_ANALYSIS_ENABLED=true`
-
-Optional variables:
-
-- `OPENAI_CREATIVE_MODEL=gpt-5.6-sol`
-
-If Creative Analysis is disabled or the API key is absent, Heat Score and the normal weekly report still run normally.
