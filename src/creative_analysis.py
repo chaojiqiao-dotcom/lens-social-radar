@@ -359,3 +359,100 @@ def _score(parsed: dict[str, Any]) -> tuple[float, dict[str, float]]:
         components[name] = round(value, 1)
         total += weight * value
     return round(clamp(total), 1), components
+
+
+def enrich_creative_analysis(items: list[dict[str, Any]]) -> dict[str, Any]:
+    enabled = os.environ.get("CREATIVE_ANALYSIS_ENABLED", "false").strip().lower() in {
+        "1", "true", "yes", "on"
+    }
+    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    status: dict[str, Any] = {
+        "enabled": enabled,
+        "api_key_present": bool(api_key),
+        "analyzed": 0,
+        "attempted": 0,
+        "failed": 0,
+        "editors_picks": 0,
+    }
+    if not enabled or not api_key:
+        return status
+
+    candidates = select_creative_candidates(items)
+    status["attempted"] = len(candidates)
+    if not candidates:
+        return status
+
+    tiktok_map: dict[str, str] = {}
+    try:
+        tiktok_map = _tiktok_video_sources(candidates)
+    except Exception as exc:
+        print(f"WARNING: TikTok creative video fetch failed: {exc}")
+
+    for item in candidates:
+        item["creative_analysis_status"] = "pending"
+        source = _resolve_video_source(item, tiktok_map)
+        if not source:
+            item["creative_analysis_status"] = "video_unavailable"
+            status["failed"] += 1
+            continue
+
+        with tempfile.TemporaryDirectory(prefix="lens-radar-creative-") as tmp:
+            tmpdir = Path(tmp)
+            video = tmpdir / "video.mp4"
+            if not _download_video(source, video):
+                item["creative_analysis_status"] = "download_failed"
+                status["failed"] += 1
+                continue
+
+            duration = _probe_duration(video)
+            cuts = _scene_cuts(video)
+            times = _frame_times(duration, cuts)
+            frames = _extract_frames(video, tmpdir, times)
+            parsed = _call_openai(item, frames, duration, cuts)
+            if not parsed:
+                item["creative_analysis_status"] = "analysis_failed"
+                status["failed"] += 1
+                continue
+
+            creative_score, score_components = _score(parsed)
+            avg_shot = round(duration / (len(cuts) + 1), 2) if duration > 0 else None
+
+            item["creative_score"] = creative_score
+            item["creative_score_breakdown"] = score_components
+            item["creative_analysis_status"] = "complete"
+            item["video_analysis"] = {
+                "duration_seconds": round(duration, 2),
+                "estimated_cut_count": len(cuts),
+                "estimated_average_shot_seconds": avg_shot,
+                "sampled_frame_times": [round(t, 2) for t, _ in frames],
+                "one_line": parsed.get("one_line") or "",
+                "hook_analysis": parsed.get("hook_analysis") or "",
+                "shooting_analysis": parsed.get("shooting_analysis") or "",
+                "editing_analysis": parsed.get("editing_analysis") or "",
+                "platform_burst_analysis": parsed.get("platform_burst_analysis") or "",
+                "product_display_analysis": parsed.get("product_display_analysis") or "",
+                "loop_analysis": parsed.get("loop_analysis") or "",
+                "replication_advice": parsed.get("replication_advice") or "",
+                "risk": parsed.get("risk") or "",
+                "timeline": parsed.get("timeline") if isinstance(parsed.get("timeline"), list) else [],
+            }
+
+            for key in ("visual_tags", "shooting_tags", "editing_tags", "hook_tags"):
+                value = parsed.get(key)
+                if isinstance(value, list):
+                    item[key] = [str(x).strip() for x in value if str(x).strip()][:12]
+
+            status["analyzed"] += 1
+
+    picks = [x for x in items if x.get("creative_score") is not None]
+    picks.sort(
+        key=lambda x: (
+            safe_num(x.get("creative_score")),
+            safe_num(x.get("heat_score")),
+        ),
+        reverse=True,
+    )
+    for idx, item in enumerate(picks, start=1):
+        item["editors_pick_rank"] = idx
+    status["editors_picks"] = min(10, len(picks))
+    return status
