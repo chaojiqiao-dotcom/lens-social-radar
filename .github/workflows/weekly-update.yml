@@ -2,6 +2,16 @@ name: Lens Social Radar Weekly Update
 
 on:
   workflow_dispatch:
+    inputs:
+      collection_mode:
+        description: "Collection mode"
+        required: true
+        default: "demo"
+        type: choice
+        options:
+          - demo
+          - apify
+          - incoming
   schedule:
     # Every Monday at 09:00 China Standard Time (01:00 UTC)
     - cron: "0 1 * * 1"
@@ -28,9 +38,19 @@ jobs:
 
       - name: Build weekly radar data
         env:
-          COLLECTION_MODE: ${{ vars.COLLECTION_MODE }}
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          COLLECTION_MODE_VAR: ${{ vars.COLLECTION_MODE }}
+          APIFY_RESULTS_PER_QUERY: ${{ vars.APIFY_RESULTS_PER_QUERY }}
+          MANUAL_MODE: ${{ github.event.inputs.collection_mode }}
         run: |
-          MODE="${COLLECTION_MODE:-demo}"
+          if [ -n "$MANUAL_MODE" ]; then
+            MODE="$MANUAL_MODE"
+          elif [ -n "$COLLECTION_MODE_VAR" ]; then
+            MODE="$COLLECTION_MODE_VAR"
+          else
+            MODE="demo"
+          fi
           echo "Collection mode: $MODE"
           python scripts/weekly_update.py --mode "$MODE"
 
