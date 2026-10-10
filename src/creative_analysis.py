@@ -241,3 +241,121 @@ def _clean_json_text(text: str) -> str:
     if first >= 0 and last > first:
         value = value[first:last + 1]
     return value
+
+
+def _call_openai(
+    item: dict[str, Any],
+    frames: list[tuple[float, Path]],
+    duration: float,
+    cuts: list[float],
+) -> dict[str, Any] | None:
+    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    if not api_key or not frames:
+        return None
+
+    model = os.environ.get("OPENAI_CREATIVE_MODEL", "gpt-5.6-sol").strip()
+    estimated_cut_count = len(cuts)
+    avg_shot = round(duration / (estimated_cut_count + 1), 2) if duration > 0 else None
+
+    rubric = """你是一名专做 TikTok / Instagram 美妆、美瞳内容的资深剪辑师与导演。
+你正在为剪辑师建立“值得研究”的案例库，而不是判断这个人长得好不好看。
+
+根据按时间顺序提供的视频关键帧，以及视频时长、估算剪切点、平台数据和文案，分析：
+1. 首帧与前3秒 Hook；
+2. 景别、构图、机位、光线、人物/产品位置；
+3. 拍摄动作设计与镜头执行；
+4. 剪辑节奏、Jump Cut/动作匹配/遮挡/卡点/速度变化等；
+5. 美瞳/眼睛/产品第一次被有效看清的效率；
+6. 完播、复播、Loop、评论/分享驱动；
+7. 这个做法对美瞳品牌是否容易复刻。
+
+不要因为播放量高就给创意高分；热度数据仅作为平台语境参考。
+只根据可观察证据判断。关键帧不足以确认的剪辑技巧必须写“无法确认”或“推测”，不要伪装成确定事实。
+
+只输出合法 JSON，结构：
+{
+  "scores":{
+    "hook":0,
+    "composition":0,
+    "shooting":0,
+    "editing":0,
+    "product_reveal":0,
+    "retention_loop":0,
+    "replicability":0
+  },
+  "one_line":"一句话说明为什么值得或不值得剪辑师研究",
+  "hook_analysis":"首帧+前3秒",
+  "shooting_analysis":"拍摄/构图/机位/光线/动作",
+  "editing_analysis":"剪辑节奏、切点、转场、速度、字幕/画面节奏",
+  "platform_burst_analysis":"为什么这种结构在对应平台容易或不容易获得推荐/互动",
+  "product_display_analysis":"美瞳/眼睛展示效率",
+  "loop_analysis":"完播、复播、loop设计",
+  "replication_advice":"UYAAI可复制的具体做法",
+  "risk":"不可复制因素/判断限制",
+  "timeline":[
+    {"time":"00:00-00:01","visual":"画面","edit":"剪辑/动作目的"}
+  ],
+  "visual_tags":["眼部特写"],
+  "shooting_tags":["自然光"],
+  "editing_tags":["Jump Cut"],
+  "hook_tags":["大脸近景"]
+}"""
+
+    metadata = {
+        "platform": item.get("platform"),
+        "brand": item.get("brand"),
+        "author": item.get("author"),
+        "caption": item.get("caption"),
+        "duration_seconds": round(duration, 2),
+        "estimated_scene_cuts": estimated_cut_count,
+        "estimated_average_shot_seconds": avg_shot,
+        "views": item.get("views"),
+        "likes": item.get("likes"),
+        "comments": item.get("comments"),
+        "shares": item.get("shares"),
+        "saves": item.get("saves"),
+        "heat_score": item.get("heat_score"),
+    }
+
+    content: list[dict[str, Any]] = [
+        {
+            "type": "input_text",
+            "text": rubric + "\n\n视频信息：" + json.dumps(metadata, ensure_ascii=False),
+        }
+    ]
+    for timestamp, frame in frames:
+        content.append({"type": "input_text", "text": f"关键帧时间：{timestamp:.2f}s"})
+        content.append({"type": "input_image", "image_url": _image_data_url(frame), "detail": "low"})
+
+    body = {
+        "model": model,
+        "input": [{"role": "user", "content": content}],
+    }
+    req = urllib.request.Request(
+        "https://api.openai.com/v1/responses",
+        data=json.dumps(body).encode("utf-8"),
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=120) as resp:
+            payload = json.loads(resp.read().decode("utf-8"))
+        parsed = json.loads(_clean_json_text(_extract_output_text(payload)))
+        return parsed if isinstance(parsed, dict) else None
+    except Exception as exc:
+        print(f"WARNING: creative OpenAI analysis failed for {item.get('url')}: {exc}")
+        return None
+
+
+def _score(parsed: dict[str, Any]) -> tuple[float, dict[str, float]]:
+    raw = parsed.get("scores") if isinstance(parsed.get("scores"), dict) else {}
+    components: dict[str, float] = {}
+    total = 0.0
+    for name, weight in CREATIVE_WEIGHTS.items():
+        value = clamp(safe_num(raw.get(name)))
+        components[name] = round(value, 1)
+        total += weight * value
+    return round(clamp(total), 1), components
