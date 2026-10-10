@@ -9,16 +9,12 @@ on:
         default: "apify"
         type: choice
         options:
-          - demo
           - apify
+          - demo
           - incoming
   schedule:
     # Every Monday at 09:00 China Standard Time (01:00 UTC)
     - cron: "0 1 * * 1"
-  push:
-    branches: [main]
-    paths:
-      - ".github/workflows/weekly-update.yml"
 
 permissions:
   contents: write
@@ -40,14 +36,14 @@ jobs:
         env:
           APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          COLLECTION_MODE_VAR: ${{ vars.COLLECTION_MODE }}
           APIFY_RESULTS_PER_QUERY: ${{ vars.APIFY_RESULTS_PER_QUERY || '10' }}
           MANUAL_MODE: ${{ github.event.inputs.collection_mode }}
+          EVENT_NAME: ${{ github.event_name }}
         run: |
           if [ -n "$MANUAL_MODE" ]; then
             MODE="$MANUAL_MODE"
-          elif [ -n "$COLLECTION_MODE_VAR" ]; then
-            MODE="$COLLECTION_MODE_VAR"
+          elif [ "$EVENT_NAME" = "schedule" ]; then
+            MODE="apify"
           else
             MODE="demo"
           fi
