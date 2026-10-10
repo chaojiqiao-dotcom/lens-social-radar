@@ -249,7 +249,7 @@ def collect_demo(start: date, end: date) -> list[dict[str, Any]]:
                 "url": None,
                 "access_mode": "demo",
             })
-    return records
+    return [x for x in records if x.get("platform") in {"instagram", "tiktok"}]
 
 
 def collect_incoming(folder: str | Path = "data/incoming") -> list[dict[str, Any]]:
@@ -418,7 +418,6 @@ def collect_apify(
     defaults = {
         "instagram": "calm_builder/instagram-scraper",
         "tiktok": "clockworks/tiktok-scraper",
-        "pinterest": "scrapeberry/pinterest-search-scraper",
     }
     terms = _default_apify_terms(keywords)
     raw_per_query = os.environ.get("APIFY_RESULTS_PER_QUERY", "").strip() or "12"
@@ -426,7 +425,7 @@ def collect_apify(
     all_items: list[dict[str, Any]] = []
     failures: list[str] = []
 
-    for platform in ("instagram", "tiktok", "pinterest"):
+    for platform in ("instagram", "tiktok"):
         actor = os.environ.get(
             f"APIFY_{platform.upper()}_ACTOR",
             defaults[platform],
