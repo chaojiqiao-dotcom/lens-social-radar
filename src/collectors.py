@@ -318,7 +318,8 @@ def _actor_input_for_platform(
     end: date,
     terms: list[str],
 ) -> dict[str, Any]:
-    per_query = max(1, int(os.environ.get("APIFY_RESULTS_PER_QUERY", "10")))
+    raw_per_query = os.environ.get("APIFY_RESULTS_PER_QUERY", "").strip() or "10"
+    per_query = max(1, int(raw_per_query))
 
     if platform == "instagram":
         # The official Apify hashtag actor accepts hashtags/keywords and returns
