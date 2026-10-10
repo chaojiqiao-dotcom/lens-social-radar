@@ -1,17 +1,53 @@
 {
   "regions": {
     "Southeast Asia": [
-      {"brand": "OLENS", "handles": {"instagram": "olens_official", "tiktok": "olens_official", "pinterest": ""}},
-      {"brand": "Hapa Kristin", "handles": {"instagram": "hapakristin", "tiktok": "hapakristin", "pinterest": ""}},
-      {"brand": "moody", "handles": {"instagram": "moodylenses", "tiktok": "moodylenses", "pinterest": ""}}
+      {
+        "brand": "OLENS",
+        "handles": {
+          "instagram": "olens_official",
+          "tiktok": "olens_official"
+        }
+      },
+      {
+        "brand": "Hapa Kristin",
+        "handles": {
+          "instagram": "hapakristin",
+          "tiktok": "hapakristin"
+        }
+      },
+      {
+        "brand": "moody",
+        "handles": {
+          "instagram": "moodylenses",
+          "tiktok": "moodylenses"
+        }
+      }
     ],
     "Europe & North America": [
-      {"brand": "ColorCL", "handles": {"instagram": "colorcl", "tiktok": "colorcl", "pinterest": ""}},
-      {"brand": "Solotica", "handles": {"instagram": "solotica_official", "tiktok": "solotica", "pinterest": ""}}
+      {
+        "brand": "ColorCL",
+        "handles": {
+          "instagram": "colorcl",
+          "tiktok": "colorcl"
+        }
+      },
+      {
+        "brand": "Solotica",
+        "handles": {
+          "instagram": "solotica_official",
+          "tiktok": "solotica"
+        }
+      }
     ],
     "Middle East": [
-      {"brand": "LensMe", "handles": {"instagram": "lensme", "tiktok": "lensme", "pinterest": ""}}
+      {
+        "brand": "LensMe",
+        "handles": {
+          "instagram": "lensme",
+          "tiktok": "lensme"
+        }
+      }
     ]
   },
-  "note": "Starter watchlist only. Verify and edit handles before live collection. Add any competitors, creators, retailers, or owned brands you want to monitor."
+  "note": "Starter watchlist for Instagram and TikTok only. Verify and edit handles before live collection. Add competitors, creators, retailers, or owned brands you want to monitor."
 }
