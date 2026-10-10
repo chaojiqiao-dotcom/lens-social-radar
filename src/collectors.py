@@ -16,20 +16,39 @@ COMMON_KEYS = {
     "url": ["url", "share_url", "shareUrl", "webVideoUrl", "postUrl", "pinUrl", "canonicalUrl"],
     "mobile_url": ["mobile_url", "mobileUrl", "appUrl", "deepLink", "deeplink"],
     "embed_url": ["embed_url", "embedUrl", "embed_link", "embedLink"],
-    "video_id": ["video_id", "videoId", "id", "item_id", "itemId"],
-    "author": ["author", "username", "ownerUsername", "profileName", "channelName"],
+    "video_id": ["video_id", "videoId", "id", "item_id", "itemId", "pinId"],
+    "author": [
+        "author", "username", "ownerUsername", "profileName", "channelName",
+        "authorMeta.name", "pinner.username", "creator.username", "creator.name",
+    ],
     "caption": ["caption", "text", "description", "title", "video_description"],
-    "posted_at": ["posted_at", "createTimeISO", "timestamp", "date", "created_at", "create_time"],
-    "views": ["views", "playCount", "videoPlayCount", "view_count", "impressions"],
-    "likes": ["likes", "diggCount", "like_count", "reactions"],
-    "comments": ["comments", "commentCount", "comment_count"],
-    "shares": ["shares", "shareCount", "share_count", "reposts"],
-    "saves": ["saves", "collectCount", "favorites_count", "favourites_count", "save_count"],
-    "followers": ["followers", "authorMeta.fans", "follower_count"],
-    "thumbnail": ["thumbnail", "thumbnail_url", "thumbnailUrl", "cover_image_url", "coverImageUrl", "displayUrl", "cover", "image", "image_url", "firstFrame", "first_frame"],
-    "local_video": ["local_video", "localVideo", "downloadedVideo", "video_path"],
+    "posted_at": [
+        "posted_at", "createTimeISO", "timestamp", "date", "created_at", "create_time",
+        "createdAt", "publishedAt", "published_at",
+    ],
+    "views": [
+        "views", "playCount", "videoPlayCount", "videoViewCount", "view_count",
+        "viewCount", "impressions",
+    ],
+    "likes": ["likes", "likesCount", "diggCount", "like_count", "likeCount", "reactions"],
+    "comments": ["comments", "commentsCount", "commentCount", "comment_count"],
+    "shares": ["shares", "sharesCount", "shareCount", "share_count", "reposts", "repinCount"],
+    "saves": [
+        "saves", "saveCount", "savesCount", "collectCount", "favorites_count",
+        "favourites_count", "save_count",
+    ],
+    "followers": [
+        "followers", "authorMeta.fans", "follower_count", "followersCount",
+        "pinner.followers", "creator.followers",
+    ],
+    "thumbnail": [
+        "thumbnail", "thumbnail_url", "thumbnailUrl", "cover_image_url", "coverImageUrl",
+        "displayUrl", "cover", "image", "image_url", "imageUrl", "firstFrame",
+        "first_frame", "videoMeta.coverUrl", "videoMeta.originalCoverUrl",
+    ],
+    "local_video": ["local_video", "localVideo", "downloadedVideo", "video_path", "videoUrl"],
     "access_mode": ["access_mode", "accessMode", "playback_mode"],
-    "content_type": ["content_type", "type", "media_type", "format"],
+    "content_type": ["content_type", "type", "media_type", "mediaType", "format"],
     "hashtags": ["hashtags", "hashtag_names", "tags"],
     "search_tags": ["search_tags", "keywords", "topics"],
     "visual_tags": ["visual_tags", "visual_keywords"],
@@ -85,7 +104,15 @@ def normalize(raw: dict[str, Any], platform_hint: str | None = None) -> dict[str
             value = raw.get(key)
         if isinstance(value, str):
             value = [x.strip() for x in value.replace("#", "").replace("，", ",").split(",") if x.strip()]
-        elif not isinstance(value, list):
+        elif isinstance(value, list):
+            if key == "hashtags":
+                value = [
+                    str(x.get("name") or x.get("title") or "").strip()
+                    if isinstance(x, dict) else str(x).strip()
+                    for x in value
+                ]
+                value = [x for x in value if x]
+        else:
             value = []
         item[key] = value
 
@@ -225,44 +252,175 @@ def collect_incoming(folder: str | Path = "data/incoming") -> list[dict[str, Any
 
 
 def _apify_run(actor: str, token: str, actor_input: dict[str, Any]) -> list[dict[str, Any]]:
+    """Run one Apify Actor and return its default dataset.
+
+    The token is sent in the Authorization header so it does not appear in URLs/logs.
+    """
     actor_encoded = urllib.parse.quote(actor, safe="")
-    url = f"https://api.apify.com/v2/acts/{actor_encoded}/runs?token={urllib.parse.quote(token)}&waitForFinish=120"
+    url = f"https://api.apify.com/v2/acts/{actor_encoded}/runs?waitForFinish=180"
     req = urllib.request.Request(
         url,
         data=json.dumps(actor_input).encode("utf-8"),
-        headers={"Content-Type":"application/json"},
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {token}",
+            "User-Agent": "LensSocialRadar/1.3",
+        },
         method="POST",
     )
-    with urllib.request.urlopen(req, timeout=150) as resp:
+    with urllib.request.urlopen(req, timeout=210) as resp:
         run = json.loads(resp.read().decode("utf-8"))
     dataset_id = (((run or {}).get("data") or {}).get("defaultDatasetId"))
     if not dataset_id:
         return []
-    dataset_url = f"https://api.apify.com/v2/datasets/{dataset_id}/items?token={urllib.parse.quote(token)}&clean=true"
-    with urllib.request.urlopen(dataset_url, timeout=120) as resp:
+    dataset_url = f"https://api.apify.com/v2/datasets/{dataset_id}/items?clean=true"
+    dataset_req = urllib.request.Request(
+        dataset_url,
+        headers={
+            "Authorization": f"Bearer {token}",
+            "User-Agent": "LensSocialRadar/1.3",
+        },
+    )
+    with urllib.request.urlopen(dataset_req, timeout=120) as resp:
         payload = json.loads(resp.read().decode("utf-8"))
     return payload if isinstance(payload, list) else []
 
 
-def collect_apify(start: date, end: date, brands: dict[str, Any], keywords: dict[str, Any]) -> list[dict[str, Any]]:
+def _default_apify_terms(keywords: dict[str, Any]) -> list[str]:
+    """Small multilingual discovery set for the first live deployment.
+
+    Keeping this intentionally small controls cost. It can later be expanded via
+    APIFY_SEARCH_TERMS without changing code.
+    """
+    env_terms = os.environ.get("APIFY_SEARCH_TERMS", "").strip()
+    if env_terms:
+        return [x.strip() for x in env_terms.split("|") if x.strip()]
+
+    preferred = [
+        "colored contacts",
+        "contact lenses",
+        "circle lens",
+        "softlens",
+        "美瞳",
+        "컬러렌즈",
+    ]
+    configured = [str(x).strip() for x in keywords.get("core", []) if str(x).strip()]
+    out: list[str] = []
+    for term in preferred + configured:
+        if term not in out:
+            out.append(term)
+    return out[:6]
+
+
+def _actor_input_for_platform(
+    platform: str,
+    start: date,
+    end: date,
+    terms: list[str],
+) -> dict[str, Any]:
+    per_query = max(1, int(os.environ.get("APIFY_RESULTS_PER_QUERY", "10")))
+
+    if platform == "instagram":
+        # The official Apify hashtag actor accepts hashtags/keywords and returns
+        # reels with likes, comments, shares, plays, timestamps and media URLs.
+        instagram_terms = [
+            x.replace("#", "").replace(" ", "")
+            for x in terms
+            if x.replace("#", "").replace(" ", "")
+        ]
+        return {
+            "hashtags": instagram_terms,
+            "resultsType": "reels",
+            "resultsLimit": per_query,
+        }
+
+    if platform == "tiktok":
+        # Search only videos and bias toward the latest week. Our own date-window
+        # filter still performs the final Tuesday-Sunday cutoff.
+        return {
+            "searchQueries": terms,
+            "searchSection": "/video",
+            "videoSearchSorting": "LATEST",
+            "videoSearchDateFilter": "PAST_WEEK",
+            "resultsPerPage": per_query,
+            "shouldDownloadVideos": False,
+            "shouldDownloadCovers": False,
+            "shouldDownloadSubtitles": False,
+            "scrapeRelatedVideos": False,
+            "proxyCountryCode": "None",
+        }
+
+    if platform == "pinterest":
+        # Pinterest search exposes public pins. maxItems is a run-level cap.
+        return {
+            "searchQueries": terms,
+            "maxItems": min(500, per_query * len(terms)),
+        }
+
+    return {}
+
+
+def collect_apify(
+    start: date,
+    end: date,
+    brands: dict[str, Any],
+    keywords: dict[str, Any],
+) -> list[dict[str, Any]]:
     token = os.environ.get("APIFY_TOKEN", "").strip()
     if not token:
-        raise RuntimeError("APIFY_TOKEN is required for COLLECTION_MODE=apify")
+        raise RuntimeError(
+            "APIFY_TOKEN is required for COLLECTION_MODE=apify. "
+            "Add it as a GitHub Actions secret; never commit the token to the repository."
+        )
+
+    defaults = {
+        "instagram": "apify/instagram-hashtag-scraper",
+        "tiktok": "clockworks/tiktok-scraper",
+        "pinterest": "crawloop/pinterest-scraper",
+    }
+    terms = _default_apify_terms(keywords)
     all_items: list[dict[str, Any]] = []
-    query_terms = keywords.get("core", [])[:20]
+    failures: list[str] = []
+
     for platform in ("instagram", "tiktok", "pinterest"):
-        actor = os.environ.get(f"APIFY_{platform.upper()}_ACTOR", "").strip()
-        if not actor:
-            continue
-        raw_input = os.environ.get(f"APIFY_{platform.upper()}_INPUT", "{}")
+        actor = os.environ.get(
+            f"APIFY_{platform.upper()}_ACTOR",
+            defaults[platform],
+        ).strip()
+        raw_input = os.environ.get(f"APIFY_{platform.upper()}_INPUT", "").strip()
+
+        if raw_input:
+            try:
+                actor_input = json.loads(raw_input)
+            except json.JSONDecodeError as exc:
+                raise RuntimeError(
+                    f"APIFY_{platform.upper()}_INPUT is not valid JSON"
+                ) from exc
+        else:
+            actor_input = _actor_input_for_platform(platform, start, end, terms)
+
         try:
-            actor_input = json.loads(raw_input)
-        except json.JSONDecodeError:
-            actor_input = {}
-        actor_input.setdefault("fromDate", start.isoformat())
-        actor_input.setdefault("toDate", end.isoformat())
-        actor_input.setdefault("searchTerms", query_terms)
-        actor_input.setdefault("maxItems", 500)
-        payload = _apify_run(actor, token, actor_input)
-        all_items.extend(normalize(x, platform) for x in payload if isinstance(x, dict))
+            payload = _apify_run(actor, token, actor_input)
+            normalized = [
+                normalize(x, platform)
+                for x in payload
+                if isinstance(x, dict)
+            ]
+            all_items.extend(normalized)
+            print(
+                f"Apify {platform}: actor={actor}, "
+                f"raw={len(payload)}, normalized={len(normalized)}"
+            )
+        except Exception as exc:
+            failures.append(f"{platform}: {exc}")
+            print(f"WARNING: Apify {platform} collection failed: {exc}")
+
+    if not all_items:
+        detail = " | ".join(failures) if failures else "no items returned"
+        raise RuntimeError(f"Apify collection returned zero posts. {detail}")
+
+    if failures:
+        print("WARNING: partial Apify collection: " + " | ".join(failures))
+
     return all_items
+
