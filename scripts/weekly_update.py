@@ -256,8 +256,8 @@ def build() -> Path:
             "collection_mode": mode,
             "is_demo": mode == "demo",
             "ranking_method": "Platform-specific heat ranking. Missing metrics remain missing; tied values share the same percentile; only data-qualified posts can enter platform TOP10 / overall TOP3. Creative/video-analysis score is separate and not yet included in heat ranking.",
-            "leaderboard_layout": "Instagram TOP10 + TikTok TOP10 + overall TOP3 + Editor's Picks TOP10",
-            "creative_ranking_method": "AI video analysis: hook 20%, composition 15%, shooting 15%, editing 20%, product reveal 10%, retention/loop 10%, replicability 10%. Heat score does not affect Creative Score.",
+            "leaderboard_layout": "Instagram TOP10 + TikTok TOP10 + overall TOP3 + overall #1 creative deep dive",
+            "creative_ranking_method": "Only overall Heat Score #1 is analyzed when it is a video. Creative Score: hook 20%, composition 15%, shooting 15%, editing 20%, product reveal 10%, retention/loop 10%, replicability 10%. Heat score does not affect Creative Score.",
         },
         "stats": {
             "posts": len(ranked),
