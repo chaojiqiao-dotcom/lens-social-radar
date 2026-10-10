@@ -1,0 +1,43 @@
+name: Lens Social Radar Weekly Update
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Every Monday at 09:00 China Standard Time (01:00 UTC)
+    - cron: "0 1 * * 1"
+
+permissions:
+  contents: write
+
+jobs:
+  weekly-update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build weekly radar data
+        env:
+          COLLECTION_MODE: ${{ vars.COLLECTION_MODE }}
+        run: |
+          MODE="${COLLECTION_MODE:-demo}"
+          echo "Collection mode: $MODE"
+          python scripts/weekly_update.py --mode "$MODE"
+
+      - name: Commit updated weekly data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data docs/media 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "No generated changes to commit."
+          else
+            git commit -m "chore: update weekly social radar"
+            git push
+          fi
