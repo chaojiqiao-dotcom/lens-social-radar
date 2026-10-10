@@ -93,7 +93,7 @@ function platformPosts(platform){
 }
 
 function renderPlatformBoards(){
-  const platforms = ['instagram','tiktok','pinterest'];
+  const platforms = ['instagram','tiktok'];
   document.getElementById('platformBoards').innerHTML = platforms.map(platform=>{
     const posts = platformPosts(platform);
     const collected = (dataset.posts || []).filter(x=>x.platform===platform).length;
