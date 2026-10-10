@@ -117,3 +117,127 @@ def _resolve_video_source(item: dict[str, Any], tiktok_map: dict[str, str]) -> s
     if item.get("platform") == "tiktok":
         return tiktok_map.get(str(item.get("url") or "")) or tiktok_map.get(str(item.get("video_id") or "")) or ""
     return str(item.get("local_video") or "")
+
+
+def _download_video(url: str, target: Path) -> bool:
+    if not url.startswith(("http://", "https://")):
+        return False
+    req = urllib.request.Request(
+        url,
+        headers={"User-Agent": "Mozilla/5.0 LensSocialRadar/1.4", "Accept": "*/*"},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=45) as resp, target.open("wb") as out:
+            remaining = 80 * 1024 * 1024
+            while remaining > 0:
+                chunk = resp.read(min(1024 * 1024, remaining))
+                if not chunk:
+                    break
+                out.write(chunk)
+                remaining -= len(chunk)
+        return target.exists() and target.stat().st_size > 1024
+    except Exception:
+        return False
+
+
+def _probe_duration(path: Path) -> float:
+    try:
+        out = subprocess.check_output(
+            [
+                "ffprobe", "-v", "error",
+                "-show_entries", "format=duration",
+                "-of", "default=noprint_wrappers=1:nokey=1",
+                str(path),
+            ],
+            text=True,
+            timeout=30,
+        ).strip()
+        return max(0.0, float(out))
+    except Exception:
+        return 0.0
+
+
+def _scene_cuts(path: Path) -> list[float]:
+    cmd = [
+        "ffmpeg", "-hide_banner", "-i", str(path),
+        "-vf", "select='gt(scene,0.30)',showinfo",
+        "-an", "-f", "null", "-",
+    ]
+    try:
+        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+    except Exception:
+        return []
+    cuts: list[float] = []
+    for match in re.finditer(r"pts_time:([0-9.]+)", proc.stderr or ""):
+        try:
+            cuts.append(float(match.group(1)))
+        except ValueError:
+            pass
+    return cuts[:40]
+
+
+def _frame_times(duration: float, cuts: list[float], max_frames: int = 8) -> list[float]:
+    if duration <= 0:
+        return []
+    base = [
+        0.05,
+        min(0.8, duration * 0.10),
+        min(1.8, duration * 0.22),
+        duration * 0.40,
+        duration * 0.60,
+        duration * 0.80,
+        max(0.05, duration - 0.25),
+    ]
+    scene = [x + 0.03 for x in cuts[:4] if 0.05 < x < duration - 0.05]
+    values = sorted({round(max(0.02, min(duration - 0.02, x)), 2) for x in base + scene})
+    if len(values) <= max_frames:
+        return values
+    step = (len(values) - 1) / (max_frames - 1)
+    return [values[round(i * step)] for i in range(max_frames)]
+
+
+def _extract_frames(video: Path, directory: Path, times: list[float]) -> list[tuple[float, Path]]:
+    out: list[tuple[float, Path]] = []
+    for i, timestamp in enumerate(times):
+        target = directory / f"frame-{i:02d}.jpg"
+        cmd = [
+            "ffmpeg", "-y", "-hide_banner", "-loglevel", "error",
+            "-ss", f"{timestamp:.2f}", "-i", str(video),
+            "-frames:v", "1", "-vf", "scale='min(720,iw)':-2",
+            "-q:v", "4", str(target),
+        ]
+        try:
+            subprocess.run(cmd, check=True, timeout=30)
+        except Exception:
+            continue
+        if target.exists() and target.stat().st_size > 1000:
+            out.append((timestamp, target))
+    return out
+
+
+def _image_data_url(path: Path) -> str:
+    blob = path.read_bytes()
+    return "data:image/jpeg;base64," + base64.b64encode(blob).decode("ascii")
+
+
+def _extract_output_text(payload: dict[str, Any]) -> str:
+    for item in payload.get("output", []) or []:
+        if item.get("type") == "message":
+            for content in item.get("content", []) or []:
+                if content.get("type") in ("output_text", "text") and content.get("text"):
+                    return str(content["text"])
+    return ""
+
+
+def _clean_json_text(text: str) -> str:
+    value = text.strip()
+    fence = chr(96) * 3
+    if value.startswith(fence):
+        value = value.strip(chr(96)).strip()
+        if value.startswith("json"):
+            value = value[4:].lstrip()
+    first = value.find("{")
+    last = value.rfind("}")
+    if first >= 0 and last > first:
+        value = value[first:last + 1]
+    return value
