@@ -252,7 +252,7 @@ def build() -> Path:
             "collection_mode": mode,
             "is_demo": mode == "demo",
             "ranking_method": "Platform-specific heat ranking. Missing metrics remain missing; tied values share the same percentile; only data-qualified posts can enter platform TOP10 / overall TOP3. Creative/video-analysis score is separate and not yet included in heat ranking.",
-            "leaderboard_layout": "Instagram TOP10 + TikTok TOP10 + overall TOP3; Pinterest remains case-library/search only",
+            "leaderboard_layout": "Instagram TOP10 + TikTok TOP10 + overall TOP3",
         },
         "stats": {
             "posts": len(ranked),
