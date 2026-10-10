@@ -18,7 +18,6 @@ sys.path.insert(0, str(ROOT))
 
 from src.analyzer import ai_analysis
 from src.collectors import collect_apify, collect_demo, collect_incoming, normalize
-from src.creative_analysis import enrich_creative_analysis
 from src.date_window import previous_tuesday_to_sunday
 from src.ranking import score_items
 from src.utils import load_json, save_json
@@ -235,8 +234,6 @@ def build() -> Path:
     hydrate_tiktok_oembed(ranked)
     cache_dashboard_thumbnails(ranked)
 
-    creative_status = enrich_creative_analysis(ranked)
-
     date_range = f"{start.isoformat()} 至 {end.isoformat()}"
     eligible_ranked = [x for x in ranked if x.get("ranking_eligible")]
     analysis = ai_analysis(eligible_ranked, date_range)
@@ -256,8 +253,7 @@ def build() -> Path:
             "collection_mode": mode,
             "is_demo": mode == "demo",
             "ranking_method": "Platform-specific heat ranking. Missing metrics remain missing; tied values share the same percentile; only data-qualified posts can enter platform TOP10 / overall TOP3. Creative/video-analysis score is separate and not yet included in heat ranking.",
-            "leaderboard_layout": "Instagram TOP10 + TikTok TOP10 + overall TOP3 + overall #1 creative deep dive",
-            "creative_ranking_method": "Only overall Heat Score #1 is analyzed when it is a video. Creative Score: hook 20%, composition 15%, shooting 15%, editing 20%, product reveal 10%, retention/loop 10%, replicability 10%. Heat score does not affect Creative Score.",
+            "leaderboard_layout": "Instagram TOP10 + TikTok TOP10 + overall TOP3",
         },
         "stats": {
             "posts": len(ranked),
@@ -269,7 +265,6 @@ def build() -> Path:
             "content_types": dict(type_counts),
         },
         "analysis": analysis,
-        "creative_analysis": creative_status,
         "posts": ranked,
     }
     out = ROOT / "docs/data/weekly.json"
