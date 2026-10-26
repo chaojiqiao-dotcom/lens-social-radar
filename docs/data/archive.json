@@ -1,11 +1,72 @@
 {
   "meta": {
-    "generated_at": "2026-10-19T01:30:11.849348+00:00",
+    "generated_at": "2026-10-26T01:35:43.053461+00:00",
     "collection_mode": "apify",
     "description": "Historical searchable Lens Social Radar case library",
-    "count": 82
+    "count": 83
   },
   "posts": [
+    {
+      "platform": "instagram",
+      "url": "https://www.instagram.com/p/De0yH1slHmY/",
+      "mobile_url": null,
+      "embed_url": null,
+      "video_id": "4014053608912091544",
+      "author": "olens_official",
+      "caption": "#Halloween #OLENS 🎃\n\n오렌즈 슈퍼 할로윈 위크! 👀\n\n[𝑯𝑨𝑳𝑳𝑶𝑾𝑬𝑬𝑵 𝑬𝑽𝑬𝑵𝑻]\n✅ 원데이(10P) 12종&한달용 4종 5천원 할인❕\n✅ 코스프레 데몬시리즈 5천원 할인❕\n✅ 3만원 이상 구매 시, 렌즈 케이스 + 할로윈 스티커 세트 증정 ❕\n\n🎃프로모션 제품은 프로필 링크 내 이벤트 페이지 참고 ❕\n🎃프로모션 기간 : 2026.10.23(금)~10.31(토)\n\n할로윈 같이 즐길 친구한테 공유하고 렌꾸 선물 받으러 가보자! 💨\n\n#OLENS #오렌즈 #할로윈",
+      "posted_at": "2026-10-23T05:15:21.000Z",
+      "views": 107067,
+      "likes": 696,
+      "comments": 6,
+      "shares": 0,
+      "saves": 0,
+      "followers": 0,
+      "thumbnail": "media/instagram-aebca4193269d9b856.jpg",
+      "local_video": "https://scontent-eze1-2.cdninstagram.com/o1/v/t2/f2/m86/AQObMy2ZXQV0ziffLK5UpI9Yrn8mOv1fo3fxQLhIpGQld-2ackplA7LWK8g3SHwgQ9OyXpbeEoPNf_OOMYSouC4Yhs349s0nmWt2H3A.mp4?_nc_cat=101&_nc_sid=5e9851&_nc_ht=scontent-eze1-2.cdninstagram.com&_nc_ohc=Ov97evsz5GAQ7kNvwFSvlAR&efg=eyJ2ZW5jb2RlX3RhZyI6Inhwdl9wcm9ncmVzc2l2ZS5JTlNUQUdSQU0uQUQuQzMuNzIwLmRhc2hfYmFzZWxpbmVfMV92MSIsInhwdl9hc3NldF9pZCI6MTg2MzkwNDAwOTAwNjE4NjQsImFzc2V0X2FnZV9kYXlzIjoyLCJ2aV91c2VjYXNlX2lkIjoxMjM3NCwiZHVyYXRpb25fcyI6MTIsInVybGdlbl9zb3VyY2UiOiJ3d3cifQ%3D%3D&ccb=17-1&vs=82a9930a8ca1cd1a&_nc_vs=HBksFQIYUmlnX3hwdl9yZWVsc19wZXJtYW5lbnRfc3JfcHJvZC84QzZBNzg3NEQ2QTM0QTkxQUU4N0IyQzgxMkVGNEMzNl92aWRlb19kYXNoaW5pdC5tcDQVAALIARIAFQIYUWlnX3hwdl9wbGFjZW1lbnRfcGVybWFuZW50X3YyL0Q2ODlCREJFQjU2RTQ0RkJCNjZFMDhFNjE3NEZENzIzX2F1ZGlvX2Rhc2hpbml0Lm1wNBUCAsgBEgAoABgAGwKIB3VzZV9vaWwBMRJwcm9ncmVzc2l2ZV9yZWNpcGUBMRUAACbQ8K249oacQhUCKAJDMywXQCjS8an7520YEmRhc2hfYmFzZWxpbmVfMV92MREAdfAHZazBAQA&_nc_gid=ajaholPZR7r7tUTnCL42lg&_nc_ss=7ba8c&_nc_zt=28&oh=00_AQNFPCx7xLHndDvw6XCG_JhKN4QBZd9kzVHPjQx7lZeQNg&oe=6AE087A6",
+      "access_mode": null,
+      "content_type": "Video",
+      "hashtags": [
+        "Halloween",
+        "OLENS"
+      ],
+      "search_tags": [],
+      "visual_tags": [],
+      "shooting_tags": [],
+      "editing_tags": [],
+      "hook_tags": [],
+      "metric_availability": {
+        "views": true,
+        "likes": true,
+        "comments": true,
+        "shares": true,
+        "saves": true,
+        "followers": true
+      },
+      "brand": "OLENS",
+      "region": "Southeast Asia",
+      "relevance_score": 50.0,
+      "media_notes": "",
+      "data_confidence": 100.0,
+      "ranking_eligible": true,
+      "ranking_reason": "",
+      "engagement_weighted": 708.0,
+      "engagement_rate": 0.661,
+      "heat_score": 50.0,
+      "score": 50.0,
+      "score_breakdown": {
+        "reach": 50.0,
+        "engagement": 50.0,
+        "share_save": 50.0,
+        "velocity": 50.0
+      },
+      "creative_score": null,
+      "rank": 1,
+      "platform_rank": 1,
+      "thumbnail_source_url": "https://scontent-eze1-1.cdninstagram.com/v/t51.82787-15/862406064_18639040249061864_1856299368099839268_n.jpg?stp=dst-jpg_e35_s640x640_tt6&_nc_cat=105&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=YrN0qEsxiJYQ7kNvwE4sp-7&_nc_oc=AdoMQm0qvBAmaQxfCjMu2pj_nAT88fMthY6Kv0LAqafhfH25G3anEuFpDFNf64JZh6Y&_nc_zt=23&_nc_ht=scontent-eze1-1.cdninstagram.com&_nc_gid=ajaholPZR7r7tUTnCL42lg&_nc_ss=7ba8c&oh=00_AQOqAhX9YUBtCKwGWEvEwfINYpmjMLvSxlOO_WhDHlwc2Q&oe=6AE48194",
+      "archive_id": "f54d9621623ccdba1e8e",
+      "week_start": "2026-10-20",
+      "week_end": "2026-10-25"
+    },
     {
       "platform": "tiktok",
       "url": "https://www.tiktok.com/@moodylenses/video/7696372551110495501",
